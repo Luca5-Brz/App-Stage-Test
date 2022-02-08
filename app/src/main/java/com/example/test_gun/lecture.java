@@ -1,10 +1,9 @@
 package com.example.test_gun;
 
-import android.provider.Settings;
+import android.content.Context;
 import android.util.Log;
-import android.view.View;
-import android.widget.SeekBar;
-import android.widget.TextView;
+import android.view.MotionEvent;
+import android.view.ViewGroup;
 
 public class lecture extends MainActivity{
 
