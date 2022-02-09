@@ -4,7 +4,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.*;
@@ -168,7 +170,44 @@ public class MainActivity extends AppCompatActivity {
         mButtonParams.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(MainActivity.this, "Go dans les Paramètres", Toast.LENGTH_SHORT).show();
+
+                View passwdView = LayoutInflater.from(MainActivity.this).inflate(R.layout.activity_param_passwd,null);
+
+                AlertDialog.Builder passwdDialog = new AlertDialog.Builder(MainActivity.this);
+                passwdDialog.setView(passwdView);
+
+                passwdDialog.setCancelable(false)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                                String testPasswd ="Test";
+
+                                EditText mEditTextPasswd = passwdView.findViewById(R.id.password_edittext_mdp);
+
+                                if (mEditTextPasswd.getText().toString().equals(testPasswd)){
+                                    new Handler().postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
+                                        }
+                                    },500);
+                                }else{
+                                    Toast.makeText(MainActivity.this, "Mauvais mot de passe", Toast.LENGTH_SHORT).show();
+                                }
+
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int i) {
+                                dialog.cancel();
+                            }
+                        })
+                        .create()
+                        .show();
+
+
             }
         });
         

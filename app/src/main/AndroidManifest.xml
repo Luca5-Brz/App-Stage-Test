@@ -10,9 +10,6 @@
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.STATUS_BAR" />
 
-    <!-- <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" /> -->
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -20,6 +17,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TestGun">
+        <activity
+            android:name=".ParamPasswdActivity"
+            android:exported="false" />
         <activity
             android:name=".OptionActivity"
             android:exported="false" />

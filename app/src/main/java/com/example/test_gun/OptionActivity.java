@@ -5,6 +5,7 @@ import androidx.appcompat.widget.*;
 
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.input.InputManager;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -13,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 
 public class OptionActivity extends AppCompatActivity {
@@ -129,7 +131,14 @@ public class OptionActivity extends AppCompatActivity {
         mButtonClavier.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(OptionActivity.this, "Choix Clavier", Toast.LENGTH_SHORT).show();
+
+                InputMethodManager mInputMngr = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+
+                if (mInputMngr!=null){
+                    mInputMngr.showInputMethodPicker();
+                }
+
+
             }
         });
 
