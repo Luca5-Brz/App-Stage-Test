@@ -15,7 +15,8 @@
         android:paddingRight="5dp"
         android:stretchColumns="*"
         tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="-6dp">
+        tools:layout_editor_absoluteY="-6dp"
+        tools:ignore="MissingConstraints">
 
 
         <TableRow

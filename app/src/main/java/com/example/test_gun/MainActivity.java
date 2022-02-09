@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.*;
 import android.provider.Settings;
@@ -21,9 +22,13 @@ public class MainActivity extends AppCompatActivity {
     int mModeLuminosite; //Si le telephone est en luminosite auto ou pas
     private final List mBlockedKeys = new ArrayList(Arrays.asList(KeyEvent.KEYCODE_VOLUME_DOWN, KeyEvent.KEYCODE_VOLUME_UP)); // liste qui contient les boutons à bloquer
 
-    boolean currentFocus;
-    boolean isPaused;
-    Handler collapseNotificationHandler;
+    private Button mButtonOptions;
+    private Button mButtonStopCDH;
+    private Button mButtonParams;
+    private Button mButtonMAJ;
+    public SeekBar mSeekbarLumin;
+    public TextView mTextViewLumin;
+
 
 
     @Override
@@ -31,9 +36,26 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mButtonOptions = findViewById(R.id.main_button_options);
+        mButtonStopCDH = findViewById(R.id.main_button_StopCDH);
+        mButtonParams = findViewById(R.id.main_button_parametres);
+        mButtonMAJ = findViewById(R.id.main_button_MiseAJour);
+        mSeekbarLumin = findViewById(R.id.main_seekbar_luminosity);
+        mTextViewLumin = findViewById(R.id.main_textview_luminosity);
 
-        setSeekbar();
 
+        setSeekbarLumin();
+
+
+        setOnClick();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        setSeekbarLumin();
 
     }
 
@@ -55,8 +77,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Paramètrage de la barre de luminosité
-    private void setSeekbar() {
+    private void setSeekbarLumin() {
 
+        //On va chercher le mode de luminosité système actuel
         try{
             mModeLuminosite = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE);
         }
@@ -64,35 +87,32 @@ public class MainActivity extends AppCompatActivity {
             Log.d("tag", e.toString());
         }
 
-        SeekBar seekBar = (SeekBar) findViewById(R.id.main_seekbar_luminosity);
-        TextView textViewLuminosity = (TextView) findViewById(R.id.main_textview_luminosity);
-        seekBar.setVisibility(View.VISIBLE);
-        textViewLuminosity.setVisibility(View.VISIBLE);
-        if (mModeLuminosite == 0) {
+        if (mModeLuminosite==0) {
             // luminosité auto off
 
-            seekBar.setMax(255);
-            float curBrightnessValue = 0;
+            mSeekbarLumin.setVisibility(View.VISIBLE);
+            mTextViewLumin.setVisibility(View.VISIBLE);
 
-            //essaye d'accèder à la luminosité actuelle
+            //essaye d'accèder à la luminosité actuelle et adapte la barre en fonction
             try
             {
-                curBrightnessValue = android.provider.Settings.System.getInt(getContentResolver(), android.provider.Settings.System.SCREEN_BRIGHTNESS);
+               mSeekbarLumin.setProgress(Settings.System.getInt(getContentResolver(),Settings.System.SCREEN_BRIGHTNESS));
             }
             catch (Settings.SettingNotFoundException e)
             {
                 e.printStackTrace();
+                Toast.makeText(this, "Impossible d'accéder au param lum", Toast.LENGTH_SHORT).show();
             }
 
-            int screen_brightness = (int) curBrightnessValue;
-            seekBar.setProgress(screen_brightness);
-            seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            //On suis les changements de la barre et on adapte le niveau de luminosité en fonction
+            mSeekbarLumin.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 int progress = 0;
 
                 @Override
-                public void onProgressChanged(SeekBar seekBar, int progresValue,boolean fromUser)
+                public void onProgressChanged(SeekBar seekBar, int progressValue,boolean fromUser)
                 {
-                    progress = progresValue;
+                    progress = progressValue;
+                    Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, progressValue);
                 }
 
                 @Override
@@ -103,16 +123,16 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar)
                 {
-                    android.provider.Settings.System.putInt(getContentResolver(),android.provider.Settings.System.SCREEN_BRIGHTNESS,progress);
+                    //modif de la lumin. système en fonction du niveau mis sur la barre par le User
+                    //Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, progress);
                 }
             });
 
         }
-
-        if (mModeLuminosite == 1) {
+        if (mModeLuminosite==1){
             //luminosité auto on
-            seekBar.setVisibility(View.GONE);
-            textViewLuminosity.setVisibility(View.GONE);
+            mSeekbarLumin.setVisibility(View.GONE);
+            mTextViewLumin.setVisibility(View.GONE);
         }
     }
 
@@ -126,4 +146,43 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+    //Paramètre l'action à effectuer lors d'un appui sur un bouton.
+    public void setOnClick() {
+        mButtonOptions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent optionActivity = new Intent(MainActivity.this, OptionActivity.class);
+                startActivity(optionActivity);
+            }
+        });
+        
+        mButtonStopCDH.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(MainActivity.this, "Application Stoppée", Toast.LENGTH_SHORT).show();
+            }
+        });
+        
+        mButtonParams.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(MainActivity.this, "Go dans les Paramètres", Toast.LENGTH_SHORT).show();
+            }
+        });
+        
+        mButtonMAJ.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(MainActivity.this, "Mise à jour de l'ATH", Toast.LENGTH_SHORT).show();
+            }
+        });
+        
+        
+    }
+
+
+
+
 }
