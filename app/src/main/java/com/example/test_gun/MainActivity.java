@@ -1,13 +1,14 @@
 package com.example.test_gun;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -15,6 +16,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.text.InputType;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -29,25 +31,48 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.net.NetworkInterface;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+import com.example.test_gun.ConnectionToServer;
+
+public class MainActivity extends AppCompatActivity{
 
     int mModeLuminosite; //Si le telephone est en luminosite auto ou pas
-    private final List mBlockedKeys = new ArrayList(Arrays.asList(KeyEvent.KEYCODE_VOLUME_DOWN, KeyEvent.KEYCODE_VOLUME_UP)); // liste qui contient les boutons à bloquer
+    private final List<Integer> mBlockedKeys = new ArrayList<>(Arrays.asList(KeyEvent.KEYCODE_VOLUME_DOWN, KeyEvent.KEYCODE_VOLUME_UP)); // liste qui contient les boutons à bloquer
 
-    //Initialisiatoin des composants Visuels de "activity_main.xml"
+    //Déclaration des composants Visuels de "activity_main.xml"
     private Button mButtonOptions;
     private Button mButtonStopCDH;
     private Button mButtonParams;
     private Button mButtonMAJ;
     public SeekBar mSeekbarLumin;
     public TextView mTextViewLumin;
+    public Button mButton1;
+    public Button mButton2;
+    public Button mButton3;
+    public Button mButton4;
+    public Button mButton5;
+    public Button mButton6;
+    public Button mButton7;
+    public Button mButton8;
+    public Button mButton9;
+    public Button mButton10;
+    public Button mButton11;
+    public Button mButton12;
+
+    public String deviceId; // Id de la Device pour les logs
+    public String deviceTitle; // Variable pour afficher un Titre sur le Gun
+    public String ipAddr;//Adress IP compléte du device
+
+    public String urlSrv = "http://212.166.21.236:8080/StoreRequest.php";
+    public String[] packagesNames = {"com.computerland.cdh.mobile"};
 
 
     @Override
@@ -55,13 +80,43 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Test récupération adresse MAC
-        WifiManager manager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        String macAddress = manager.getConnectionInfo().getMacAddress();
-        setTitle(macAddress);
+        ConnectionToServer conn = new ConnectionToServer();
+        conn.execute(urlSrv);
 
-        //Demande des permissions
-        askPermissions();
+
+        //Récupération adresse MAC
+        if (Build.VERSION.SDK_INT >= 18/*Build.VERSION_CODES.M*/) {
+            //Demande des permissions
+            askPermissions();
+
+            //On va stocker la première addresse ip du device dans les SharedPrefereces afin d'avoir toujours le même Title
+            ipAddr = getSharedPreferences("Adresse IP", MODE_PRIVATE).getString("Addresse Ip",null);
+
+            if(ipAddr == null) //Si c'est la premiére fois qu'on allume le device
+            {
+                //On récupere l'adresse Ip du device
+                WifiManager manager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                ipAddr = Formatter.formatIpAddress(manager.getConnectionInfo().getIpAddress());
+
+
+                String[] ipAddrSplit = ipAddr.split("\\."); //On Sépare l'adresse ip pour récupérer le dernier Octet
+                deviceTitle = ipAddrSplit[3]; // On ne récupére que le dernier octet afin de l'afficher
+
+                getSharedPreferences("Adresse IP", MODE_PRIVATE)
+                        .edit()
+                        .putString("Addresse Ip",ipAddr)
+                        .apply();
+
+            }else{ //S'il existe déjà une addresse ip pour ce device, on la reprend et l'affiche
+                String[] ipAddrSplit = ipAddr.split("\\.");
+                deviceTitle=ipAddrSplit[3];
+            }
+            setTitle(deviceTitle);
+
+            //On récupére l'addresse MAC pour en faire un ID
+            deviceId = getMacAddr();
+
+        }
 
         //Instanciation de différents composants visuels
         mButtonOptions = findViewById(R.id.main_button_options);
@@ -70,12 +125,25 @@ public class MainActivity extends AppCompatActivity {
         mButtonMAJ = findViewById(R.id.main_button_MiseAJour);
         mSeekbarLumin = findViewById(R.id.main_seekbar_luminosity);
         mTextViewLumin = findViewById(R.id.main_textview_luminosity);
+        mButton1 = findViewById(R.id.main_button1);
+        mButton2 = findViewById(R.id.main_button2);
+        mButton3 = findViewById(R.id.main_button3);
+        mButton4 = findViewById(R.id.main_button4);
+        mButton5 = findViewById(R.id.main_button5);
+        mButton6 = findViewById(R.id.main_button6);
+        mButton7 = findViewById(R.id.main_button7);
+        mButton8 = findViewById(R.id.main_button8);
+        mButton9 = findViewById(R.id.main_button9);
+        mButton10 = findViewById(R.id.main_button10);
+        mButton11 = findViewById(R.id.main_button11);
+        mButton12 = findViewById(R.id.main_button12);
 
         //Parametre la barre de luminosité
         setSeekbarLumin();
 
         //Paramètre l'action des différents boutons présent sur l'ATH
         setOnClick();
+        initializeButtons();
 
         //Verrouille l'orientation du Launcher seulement
         setOrientation();
@@ -91,6 +159,33 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //Méthode pour avoir la mac Addr
+    public static String getMacAddr() {
+        StringBuilder res1 = new StringBuilder();
+        try {
+            List<NetworkInterface> all = Collections.list(NetworkInterface.getNetworkInterfaces());
+            for (NetworkInterface nif : all) {
+                if (!nif.getName().equalsIgnoreCase("p2p0")) continue;
+
+                byte[] macBytes = nif.getHardwareAddress();
+                if (macBytes == null) {
+                    continue;
+                }
+
+                res1 = new StringBuilder();
+                for (byte b : macBytes) {
+                    res1.append(String.format("%02X:",b));
+                }
+
+                if (res1.length() > 0) {
+                    res1.deleteCharAt(res1.length() - 1);
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return res1.toString();
+    }
+
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
 
@@ -99,11 +194,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Verrouille l'orientaiton du launcher seulement
+    @SuppressLint("SourceLockedOrientationActivity")
     public void setOrientation(){
 
         if((getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == 4) // Check si Tablette
         { //Si large écran
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         }else{ // Si petits écrans
 
@@ -190,94 +286,98 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    //Paramètre l'action à effectuer lors d'un appui sur un bouton.
-    public void setOnClick() {
-        /* Lors ce qu'on appuie sur le bouton "Options"
-            on ouvre la page avec les options utilisateurs*/
-        mButtonOptions.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent optionActivity = new Intent(MainActivity.this, OptionActivity.class);
-                startActivity(optionActivity);
-            }
-        });
+    //Initialisation des boutons
+    public void initializeButtons(){
 
-        //Kill l'applicatin "CDH" quand on appui sur le bouton "Stop Application CDH"
-        mButtonStopCDH.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        mButton1.getBackground().setAlpha(255);
+        String packageName = packagesNames[0];
+        try {
+            //on affiche l'icone de l'application sur le bouton
+            Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
+            PackageManager packageManager = getApplicationContext().getPackageManager();
+            String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
+            //on affiche le nom de l'application
+            mButton1.setText(appName);
+            mButton1.setBackground(appIcon);
+            mButton1.setVisibility(View.VISIBLE);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            mButton1.setVisibility(View.VISIBLE);
+        }
 
-                Toast.makeText(MainActivity.this, "Application Stoppée", Toast.LENGTH_SHORT).show();
-
-            }
-        });
-
-        //Accés aux paramétres d'Android. Action bloquée par un mot de passe
-        mButtonParams.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                //Création de l'EditText et attribution de certains attributs
-                EditText mPasswdEditText = new EditText(MainActivity.this);
-                mPasswdEditText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                mPasswdEditText.setTextColor(0xFFFFFF);
-
-                //Définition du Mot de passe
-                final String mPassword;
-
-                Date date = Calendar.getInstance().getTime();
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyMMdd");
-                mPassword = dateFormat.format(date);
-
-
-                //Affichage de l'AlertBox demandant le mot de passe
-                AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
-                        .setTitle("Mot de Passe :")
-                        .setView(mPasswdEditText)
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                                if (mPasswdEditText.getText().toString().equals(mPassword)) {
-
-                                    new Handler().postDelayed(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
-                                        }
-                                    },0);
-
-                                }else{
-                                    Toast.makeText(MainActivity.this, "Mauvais Mot De Passe", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        })
-                        .setNegativeButton("Cancel", null)
-                        .create();
-                dialog.show();
-
-            }
-        });
-
-        //Actualise l'affichage du Launcher
-        mButtonMAJ.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(MainActivity.this, "Mise à jour de l'ATH", Toast.LENGTH_SHORT).show();
-            }
-        });
 
     }
 
+    //Paramètre l'action à effectuer lors d'un appui sur un bouton.
+    public void setOnClick() {
+
+        mButton1.setOnClickListener(view -> {
+            Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
+        });
+
+
+        /* Lors ce qu'on appuie sur le bouton "Options"
+            on ouvre la page avec les options utilisateurs*/
+        mButtonOptions.setOnClickListener(view -> {
+            Intent optionActivity = new Intent(MainActivity.this, OptionActivity.class);
+            startActivity(optionActivity);
+        });
+
+        //Kill l'applicatin "CDH" quand on appui sur le bouton "Stop Application CDH"
+        mButtonStopCDH.setOnClickListener(view -> Toast.makeText(MainActivity.this, "Application Stoppée", Toast.LENGTH_SHORT).show());
+
+        //Accés aux paramétres d'Android. Action bloquée par un mot de passe
+        mButtonParams.setOnClickListener(view -> {
+
+            //Création de l'EditText et attribution de certains attributs
+            EditText mPasswdEditText = new EditText(MainActivity.this);
+            mPasswdEditText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            mPasswdEditText.setTextColor(0xFFFFFF);
+
+            //Définition du Mot de passe
+            final String mPassword;
+
+            Date date = Calendar.getInstance().getTime();
+            @SuppressLint("SimpleDateFormat")
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyMMdd");
+            mPassword = dateFormat.format(date);
+
+
+            //Affichage de l'AlertBox demandant le mot de passe
+            AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Mot de Passe :")
+                    .setView(mPasswdEditText)
+                    .setPositiveButton("OK", (dialog1, which) -> {
+
+                        if (mPasswdEditText.getText().toString().equals(mPassword)) {
+
+                            new Handler().postDelayed(() -> startActivity(new Intent(Settings.ACTION_SETTINGS)),0);
+
+                        }else{
+                            Toast.makeText(MainActivity.this, "Mauvais Mot De Passe", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .create();
+            dialog.show();
+
+        });
+
+        //Actualise l'affichage du Launcher
+        mButtonMAJ.setOnClickListener(view -> Toast.makeText(MainActivity.this, "Mise à jour de l'ATH", Toast.LENGTH_SHORT).show());
+
+    }
 
     //Demande au User l'accés aux permissions voulues
     public void askPermissions(){
         String[] mPermissionsTab = {Manifest.permission.ACCESS_FINE_LOCATION, //liste des permissions à demander
                                     Manifest.permission.READ_EXTERNAL_STORAGE,
-                                    Manifest.permission.READ_PHONE_STATE};
+                                    Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.INTERNET};
 
         String mPermissionsCheck = Manifest.permission.ACCESS_FINE_LOCATION + //Liste des permissions à vérifier si on a
-                Manifest.permission.READ_EXTERNAL_STORAGE + Manifest.permission.READ_PHONE_STATE;
+                Manifest.permission.READ_EXTERNAL_STORAGE + Manifest.permission.READ_PHONE_STATE
+                + Manifest.permission.INTERNET;
 
         if(Build.VERSION.SDK_INT >= 23) //On check si Android est supérieur à Android 6
                                         // car avant on ne dois pas demander les permissions
@@ -296,20 +396,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /*public void askPermissionsStorage(){
-        if (Build.VERSION.SDK_INT >= 23){
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-
-                //Toast.makeText(this,"ask storage set",Toast.LENGTH_LONG).show();
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-
-            } else {
-                // Permission has already been granted
-                // Toast.makeText(this,"already storage set",Toast.LENGTH_LONG).show();
-            }
-        }
-    }*/
-
+    //Permission d'accés aux paramétres système
     public void askPermissionsWriteSettings(){
 
         if (Build.VERSION.SDK_INT >= 23){
@@ -323,7 +410,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode==0)//Permissions Location

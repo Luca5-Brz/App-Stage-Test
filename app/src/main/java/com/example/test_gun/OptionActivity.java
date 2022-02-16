@@ -1,24 +1,31 @@
 package com.example.test_gun;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.*;
-
 import android.content.Context;
 import android.content.Intent;
-import android.hardware.input.InputManager;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.SeekBar;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class OptionActivity extends AppCompatActivity {
 
+    private final List<Integer> mBlockedKeys = new ArrayList<>(Arrays.asList(KeyEvent.KEYCODE_VOLUME_DOWN, KeyEvent.KEYCODE_VOLUME_UP)); // liste qui contient les boutons à bloquer
 
     private SwitchCompat mSwitchLuminosite;
     private SwitchCompat mSwitchRotation;
@@ -212,6 +219,19 @@ public class OptionActivity extends AppCompatActivity {
         {
             Intent panelIntent = new Intent(Settings.Panel.ACTION_WIFI);
             startActivity(panelIntent);
+        }
+
+    }
+
+    //Blocage des boutons de volume
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        /*Dés qu'on appui sur l'un des boutons de la liste "mBlockedKeys"
+         on bloque l'action initiale de ce bouton*/
+        if (mBlockedKeys.contains(event.getKeyCode())){
+            return  true;
+        }else{
+            return super.dispatchKeyEvent(event);
         }
 
     }

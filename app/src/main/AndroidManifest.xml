@@ -7,12 +7,12 @@
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" /><!-- Protection level : normal -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /><!-- Protection level : normal -->
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" /><!-- Protection level : normal -->
-    <uses-permission android:name="android.permission.LOCAL_MAC_ADDRESS" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" /><!-- Protection level : protected -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/><!-- Protection level : dangerous -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/><!-- Protection level : dangerous -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/><!-- Protection level : dangerous -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/><!-- Protection level : dangerous -->
+
 
     <application
         android:allowBackup="true"
