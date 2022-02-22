@@ -2,7 +2,6 @@ package com.example.test_gun;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -27,10 +26,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.NetworkInterface;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -39,8 +45,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import com.example.test_gun.ConnectionToServer;
 
 public class MainActivity extends AppCompatActivity{
 
@@ -71,8 +75,12 @@ public class MainActivity extends AppCompatActivity{
     public String deviceTitle; // Variable pour afficher un Titre sur le Gun
     public String ipAddr;//Adress IP compléte du device
 
-    public String urlSrv = "http://212.166.21.236:8080/StoreRequest.php";
-    public String[] packagesNames = {"com.computerland.cdh.mobile"};
+    //public String BaseUrlSrv = "http://212.166.21.236:8080";
+    public String BaseUrlSrv ="https://launcher.carrieresduhainaut.com";
+    public String urlSrv ;
+    public String[] packagesNames = {"","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""};
+    //public String[] packagesNames = {"com.computerland.cdh.mobile","com.example.info_jvs.camera","de.spanset.zurrkraft","com.example.info_jvs.Reprint","com.tricolorcat.calculator","com.has.mobile","com.example.info_jvs.WebSigma","","","","",""};
+
 
 
     @Override
@@ -80,63 +88,16 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ConnectionToServer conn = new ConnectionToServer();
+        setIpTitle();
+
+        urlSrv = BaseUrlSrv+"/StoreRequest.php?gun="+deviceId;
+        Log.e("URL",urlSrv);
+
+        ConnectionToServer conn = new ConnectionToServer(this);
         conn.execute(urlSrv);
 
-
-        //Récupération adresse MAC
-        if (Build.VERSION.SDK_INT >= 18/*Build.VERSION_CODES.M*/) {
-            //Demande des permissions
-            askPermissions();
-
-            //On va stocker la première addresse ip du device dans les SharedPrefereces afin d'avoir toujours le même Title
-            ipAddr = getSharedPreferences("Adresse IP", MODE_PRIVATE).getString("Addresse Ip",null);
-
-            if(ipAddr == null) //Si c'est la premiére fois qu'on allume le device
-            {
-                //On récupere l'adresse Ip du device
-                WifiManager manager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-                ipAddr = Formatter.formatIpAddress(manager.getConnectionInfo().getIpAddress());
-
-
-                String[] ipAddrSplit = ipAddr.split("\\."); //On Sépare l'adresse ip pour récupérer le dernier Octet
-                deviceTitle = ipAddrSplit[3]; // On ne récupére que le dernier octet afin de l'afficher
-
-                getSharedPreferences("Adresse IP", MODE_PRIVATE)
-                        .edit()
-                        .putString("Addresse Ip",ipAddr)
-                        .apply();
-
-            }else{ //S'il existe déjà une addresse ip pour ce device, on la reprend et l'affiche
-                String[] ipAddrSplit = ipAddr.split("\\.");
-                deviceTitle=ipAddrSplit[3];
-            }
-            setTitle(deviceTitle);
-
-            //On récupére l'addresse MAC pour en faire un ID
-            deviceId = getMacAddr();
-
-        }
-
         //Instanciation de différents composants visuels
-        mButtonOptions = findViewById(R.id.main_button_options);
-        mButtonStopCDH = findViewById(R.id.main_button_StopCDH);
-        mButtonParams = findViewById(R.id.main_button_parametres);
-        mButtonMAJ = findViewById(R.id.main_button_MiseAJour);
-        mSeekbarLumin = findViewById(R.id.main_seekbar_luminosity);
-        mTextViewLumin = findViewById(R.id.main_textview_luminosity);
-        mButton1 = findViewById(R.id.main_button1);
-        mButton2 = findViewById(R.id.main_button2);
-        mButton3 = findViewById(R.id.main_button3);
-        mButton4 = findViewById(R.id.main_button4);
-        mButton5 = findViewById(R.id.main_button5);
-        mButton6 = findViewById(R.id.main_button6);
-        mButton7 = findViewById(R.id.main_button7);
-        mButton8 = findViewById(R.id.main_button8);
-        mButton9 = findViewById(R.id.main_button9);
-        mButton10 = findViewById(R.id.main_button10);
-        mButton11 = findViewById(R.id.main_button11);
-        mButton12 = findViewById(R.id.main_button12);
+        instanciationXMLComponents();
 
         //Parametre la barre de luminosité
         setSeekbarLumin();
@@ -184,6 +145,70 @@ public class MainActivity extends AppCompatActivity{
         } catch (Exception ignored) {
         }
         return res1.toString();
+    }
+
+    public void setIpTitle(){
+
+        //Récupération adresse MAC
+        if (Build.VERSION.SDK_INT >= 18/*Build.VERSION_CODES.M*/) {
+            //Demande des permissions
+            askPermissions();
+
+            //On va stocker la première addresse ip du device dans les SharedPrefereces afin d'avoir toujours le même Title
+            ipAddr = getSharedPreferences("Adresse IP", MODE_PRIVATE).getString("Addresse Ip",null);
+
+            if(ipAddr == null) //Si c'est la premiére fois qu'on allume le device
+            {
+                //On récupere l'adresse Ip du device
+                WifiManager manager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                ipAddr = Formatter.formatIpAddress(manager.getConnectionInfo().getIpAddress());
+                Log.e("IP",ipAddr);
+
+
+                String[] ipAddrSplit = ipAddr.split("\\."); //On Sépare l'adresse ip pour récupérer le dernier Octet
+                deviceTitle = ipAddrSplit[3]; // On ne récupére que le dernier octet afin de l'afficher
+
+                getSharedPreferences("Adresse IP", MODE_PRIVATE)
+                        .edit()
+                        .putString("Addresse Ip",ipAddr)
+                        .apply();
+
+            }else{ //S'il existe déjà une addresse ip pour ce device, on la reprend et l'affiche
+                String[] ipAddrSplit = ipAddr.split("\\.");
+                deviceTitle=ipAddrSplit[3];
+            }
+            setTitle(deviceTitle);
+
+            //On récupére l'addresse MAC pour en faire un ID
+            deviceId = getMacAddr();
+            Log.e("ID", deviceId);
+
+        }
+
+
+    }
+
+    public void instanciationXMLComponents(){
+
+        mButtonOptions = findViewById(R.id.main_button_options);
+        mButtonStopCDH = findViewById(R.id.main_button_StopCDH);
+        mButtonParams = findViewById(R.id.main_button_parametres);
+        mButtonMAJ = findViewById(R.id.main_button_MiseAJour);
+        mSeekbarLumin = findViewById(R.id.main_seekbar_luminosity);
+        mTextViewLumin = findViewById(R.id.main_textview_luminosity);
+        mButton1 = findViewById(R.id.main_button1);
+        mButton2 = findViewById(R.id.main_button2);
+        mButton3 = findViewById(R.id.main_button3);
+        mButton4 = findViewById(R.id.main_button4);
+        mButton5 = findViewById(R.id.main_button5);
+        mButton6 = findViewById(R.id.main_button6);
+        mButton7 = findViewById(R.id.main_button7);
+        mButton8 = findViewById(R.id.main_button8);
+        mButton9 = findViewById(R.id.main_button9);
+        mButton10 = findViewById(R.id.main_button10);
+        mButton11 = findViewById(R.id.main_button11);
+        mButton12 = findViewById(R.id.main_button12);
+
     }
 
     @Override
@@ -287,22 +312,261 @@ public class MainActivity extends AppCompatActivity{
     }
 
     //Initialisation des boutons
-    public void initializeButtons(){
+    @SuppressLint("NewApi")
+    public void initializeButtons()     {
+        String packageName;
+        int numBtn = 0;
+        int incrementNumBtn = 1;
 
         mButton1.getBackground().setAlpha(255);
-        String packageName = packagesNames[0];
-        try {
-            //on affiche l'icone de l'application sur le bouton
-            Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
-            PackageManager packageManager = getApplicationContext().getPackageManager();
-            String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
-            //on affiche le nom de l'application
-            mButton1.setText(appName);
-            mButton1.setBackground(appIcon);
-            mButton1.setVisibility(View.VISIBLE);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-            mButton1.setVisibility(View.VISIBLE);
+        mButton1.setBackgroundTintList(null);
+        packageName = packagesNames[numBtn];
+        numBtn += incrementNumBtn;
+        if(!packageName.isEmpty())
+        {
+            try {
+                //on affiche l'icone de l'application sur le bouton
+                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
+                PackageManager packageManager = getApplicationContext().getPackageManager();
+                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
+                //on affiche le nom de l'application
+                mButton1.setText(appName);
+                mButton1.setBackground(appIcon);
+                mButton1.setVisibility(View.VISIBLE);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+                mButton1.setVisibility(View.VISIBLE);
+            }
+        }
+
+        mButton2.getBackground().setAlpha(255);
+        mButton2.setBackgroundTintList(null);
+        packageName = packagesNames[numBtn];
+        numBtn += incrementNumBtn;
+        if(!packageName.isEmpty())
+        {
+            try {
+                //on affiche l'icone de l'application sur le bouton
+                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
+                PackageManager packageManager = getApplicationContext().getPackageManager();
+                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
+                //on affiche le nom de l'application
+                mButton2.setText(appName);
+                mButton2.setBackground(appIcon);
+                mButton2.setVisibility(View.VISIBLE);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+                mButton2.setVisibility(View.VISIBLE);
+            }
+        }
+
+        mButton3.getBackground().setAlpha(255);
+        mButton3.setBackgroundTintList(null);
+        packageName = packagesNames[numBtn];
+        numBtn += incrementNumBtn;
+        if(!packageName.isEmpty())
+        {
+            try {
+                //on affiche l'icone de l'application sur le bouton
+                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
+                PackageManager packageManager = getApplicationContext().getPackageManager();
+                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
+                //on affiche le nom de l'application
+                mButton3.setText(appName);
+                mButton3.setBackground(appIcon);
+                mButton3.setVisibility(View.VISIBLE);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+                mButton3.setVisibility(View.VISIBLE);
+            }
+        }
+
+        mButton4.getBackground().setAlpha(255);
+        mButton4.setBackgroundTintList(null);
+        packageName = packagesNames[numBtn];
+        numBtn += incrementNumBtn;
+        if(!packageName.isEmpty())
+        {
+            try {
+                //on affiche l'icone de l'application sur le bouton
+                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
+                PackageManager packageManager = getApplicationContext().getPackageManager();
+                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
+                //on affiche le nom de l'application
+                mButton4.setText(appName);
+                mButton4.setBackground(appIcon);
+                mButton4.setVisibility(View.VISIBLE);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+                mButton4.setVisibility(View.VISIBLE);
+            }
+        }
+
+        mButton5.getBackground().setAlpha(255);
+        mButton5.setBackgroundTintList(null);
+        packageName = packagesNames[numBtn];
+        numBtn += incrementNumBtn;
+        if(!packageName.isEmpty())
+        {
+            try {
+                //on affiche l'icone de l'application sur le bouton
+                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
+                PackageManager packageManager = getApplicationContext().getPackageManager();
+                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
+                //on affiche le nom de l'application
+                mButton5.setText(appName);
+                mButton5.setBackground(appIcon);
+                mButton5.setVisibility(View.VISIBLE);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+                mButton5.setVisibility(View.VISIBLE);
+            }
+        }
+
+        mButton6.getBackground().setAlpha(255);
+        mButton6.setBackgroundTintList(null);
+        packageName = packagesNames[numBtn];
+        numBtn += incrementNumBtn;
+        if(!packageName.isEmpty())
+        {
+            try {
+                //on affiche l'icone de l'application sur le bouton
+                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
+                PackageManager packageManager = getApplicationContext().getPackageManager();
+                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
+                //on affiche le nom de l'application
+                mButton6.setText(appName);
+                mButton6.setBackground(appIcon);
+                mButton6.setVisibility(View.VISIBLE);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+                mButton6.setVisibility(View.VISIBLE);
+            }
+        }
+
+        mButton7.getBackground().setAlpha(255);
+        mButton7.setBackgroundTintList(null);
+        packageName = packagesNames[numBtn];
+        numBtn += incrementNumBtn;
+        if(!packageName.isEmpty())
+        {
+            try {
+                //on affiche l'icone de l'application sur le bouton
+                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
+                PackageManager packageManager = getApplicationContext().getPackageManager();
+                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
+                //on affiche le nom de l'application
+                mButton7.setText(appName);
+                mButton7.setBackground(appIcon);
+                mButton7.setVisibility(View.VISIBLE);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+                mButton7.setVisibility(View.VISIBLE);
+            }
+        }
+
+        mButton8.getBackground().setAlpha(255);
+        mButton8.setBackgroundTintList(null);
+        packageName = packagesNames[numBtn];
+        numBtn += incrementNumBtn;
+        if(!packageName.isEmpty()){
+            try {
+                //on affiche l'icone de l'application sur le bouton
+                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
+                PackageManager packageManager = getApplicationContext().getPackageManager();
+                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
+                //on affiche le nom de l'application
+                mButton8.setText(appName);
+                mButton8.setBackground(appIcon);
+                mButton8.setVisibility(View.VISIBLE);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+                mButton8.setVisibility(View.VISIBLE);
+            }
+        }
+
+        mButton9.getBackground().setAlpha(255);
+        mButton9.setBackgroundTintList(null);
+        packageName = packagesNames[numBtn];
+        numBtn += incrementNumBtn;
+        if(!packageName.isEmpty())
+        {
+            try {
+                //on affiche l'icone de l'application sur le bouton
+                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
+                PackageManager packageManager = getApplicationContext().getPackageManager();
+                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
+                //on affiche le nom de l'application
+                mButton9.setText(appName);
+                mButton9.setBackground(appIcon);
+                mButton9.setVisibility(View.VISIBLE);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+                mButton9.setVisibility(View.VISIBLE);
+            }
+        }
+
+        mButton10.getBackground().setAlpha(255);
+        mButton10.setBackgroundTintList(null);
+        packageName = packagesNames[numBtn];
+        numBtn += incrementNumBtn;
+        if(!packageName.isEmpty())
+        {
+            try {
+                //on affiche l'icone de l'application sur le bouton
+                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
+                PackageManager packageManager = getApplicationContext().getPackageManager();
+                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
+                //on affiche le nom de l'application
+                mButton10.setText(appName);
+                mButton10.setBackground(appIcon);
+                mButton10.setVisibility(View.VISIBLE);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+                mButton10.setVisibility(View.VISIBLE);
+            }
+        }
+
+        mButton11.getBackground().setAlpha(255);
+        mButton11.setBackgroundTintList(null);
+        packageName = packagesNames[numBtn];
+        numBtn += incrementNumBtn;
+        if(!packageName.isEmpty())
+        {
+            try {
+                //on affiche l'icone de l'application sur le bouton
+                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
+                PackageManager packageManager = getApplicationContext().getPackageManager();
+                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
+                //on affiche le nom de l'application
+                mButton11.setText(appName);
+                mButton11.setBackground(appIcon);
+                mButton11.setVisibility(View.VISIBLE);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+                mButton11.setVisibility(View.VISIBLE);
+            }
+        }
+
+        mButton12.getBackground().setAlpha(255);
+        mButton12.setBackgroundTintList(null);
+        packageName = packagesNames[numBtn];
+        numBtn += incrementNumBtn;
+        if(!packageName.isEmpty())
+        {
+            try {
+                //on affiche l'icone de l'application sur le bouton
+                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
+                PackageManager packageManager = getApplicationContext().getPackageManager();
+                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
+                //on affiche le nom de l'application
+                mButton12.setText(appName);
+                mButton12.setBackground(appIcon);
+                mButton12.setVisibility(View.VISIBLE);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+                mButton12.setVisibility(View.VISIBLE);
+            }
         }
 
 
@@ -312,6 +576,39 @@ public class MainActivity extends AppCompatActivity{
     public void setOnClick() {
 
         mButton1.setOnClickListener(view -> {
+            Toast.makeText(this, "Lancement App CDH", Toast.LENGTH_SHORT).show();
+        });
+        mButton2.setOnClickListener(view -> {
+            Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
+        });
+        mButton3.setOnClickListener(view -> {
+            Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
+        });
+        mButton4.setOnClickListener(view -> {
+            Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
+        });
+        mButton5.setOnClickListener(view -> {
+            Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
+        });
+        mButton6.setOnClickListener(view -> {
+            Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
+        });
+        mButton7.setOnClickListener(view -> {
+            Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
+        });
+        mButton8.setOnClickListener(view -> {
+            Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
+        });
+        mButton9.setOnClickListener(view -> {
+            Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
+        });
+        mButton10.setOnClickListener(view -> {
+            Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
+        });
+        mButton11.setOnClickListener(view -> {
+            Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
+        });
+        mButton12.setOnClickListener(view -> {
             Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
         });
 
@@ -324,7 +621,9 @@ public class MainActivity extends AppCompatActivity{
         });
 
         //Kill l'applicatin "CDH" quand on appui sur le bouton "Stop Application CDH"
-        mButtonStopCDH.setOnClickListener(view -> Toast.makeText(MainActivity.this, "Application Stoppée", Toast.LENGTH_SHORT).show());
+        mButtonStopCDH.setOnClickListener(view -> {
+
+        });
 
         //Accés aux paramétres d'Android. Action bloquée par un mot de passe
         mButtonParams.setOnClickListener(view -> {
@@ -422,4 +721,64 @@ public class MainActivity extends AppCompatActivity{
         }
 
     }
+
+    public void writeToFile(String data,Context context) {
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("buttonConfig.txt", Context.MODE_PRIVATE));
+            outputStreamWriter.write(data);
+            outputStreamWriter.close();
+        }
+        catch (IOException e) {
+            Log.e("Exception", "File write failed: " + e.toString());
+        }
+    }
+
+    public  String readFromFile(Context context) {
+
+        String ret = "";
+
+        try {
+            InputStream inputStream = context.openFileInput("buttonConfig.txt");
+
+            if ( inputStream != null ) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                String receiveString = "";
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ( (receiveString = bufferedReader.readLine()) != null ) {
+                    stringBuilder.append(receiveString);
+                }
+
+                inputStream.close();
+                ret = stringBuilder.toString();
+            }
+        }
+        catch (FileNotFoundException e) {
+            Log.e("login activity", "File not found: ");
+            Log.e("login activity", "Can not read file: ");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return ret;
+    }
+
+    public void splitString(){
+
+        String reader = readFromFile(getApplicationContext());
+        String[] readerSplit = reader.split("[,;]");
+
+        int s =0;
+        for (int i=0;i<=(readerSplit.length/3)-1;i++){
+
+            readerSplit[s]=readerSplit[s].replaceAll("[\\s+]","");
+
+            packagesNames[i]=readerSplit[s];
+            s += 3;
+        }
+        initializeButtons();
+
+    }
+
 }
