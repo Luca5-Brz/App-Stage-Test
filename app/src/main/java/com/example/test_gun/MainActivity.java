@@ -2,16 +2,23 @@ package com.example.test_gun;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.DownloadManager;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.provider.Settings;
 import android.text.InputType;
@@ -32,6 +39,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,11 +84,14 @@ public class MainActivity extends AppCompatActivity{
     public String ipAddr;//Adress IP compléte du device
 
     //public String BaseUrlSrv = "http://212.166.21.236:8080";
-    public String BaseUrlSrv ="https://launcher.carrieresduhainaut.com";
+    public String BaseUrlSrv ="https://launcher.carrieresduhainaut.com/launcherdev";
     public String urlSrv ;
     public String[] packagesNames = {"","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""};
-    //public String[] packagesNames = {"com.computerland.cdh.mobile","com.example.info_jvs.camera","de.spanset.zurrkraft","com.example.info_jvs.Reprint","com.tricolorcat.calculator","com.has.mobile","com.example.info_jvs.WebSigma","","","","",""};
+    public String apkName = "";
 
+
+    private long myDownloadReference;
+    private boolean downloading=true;
 
 
     @Override
@@ -149,7 +160,7 @@ public class MainActivity extends AppCompatActivity{
 
     public void setIpTitle(){
 
-        //Récupération adresse MAC
+        //Récupération adresse IP
         if (Build.VERSION.SDK_INT >= 18/*Build.VERSION_CODES.M*/) {
             //Demande des permissions
             askPermissions();
@@ -576,40 +587,148 @@ public class MainActivity extends AppCompatActivity{
     public void setOnClick() {
 
         mButton1.setOnClickListener(view -> {
-            Toast.makeText(this, "Lancement App CDH", Toast.LENGTH_SHORT).show();
+
+            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[0]);
+            if (launchIntent != null) {
+                startActivity(launchIntent);//null pointer check in case package name was not found
+            }//si cela n'existe pas --> download it
+            else
+            {
+                GetApkNameFromServer(packagesNames[0]);
+            }
+
         });
         mButton2.setOnClickListener(view -> {
-            Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
+
+            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[1]);
+            if (launchIntent != null) {
+                startActivity(launchIntent);//null pointer check in case package name was not found
+            }//si cela n'existe pas --> download it
+            else
+            {
+                GetApkNameFromServer(packagesNames[1]);
+            }
+
         });
         mButton3.setOnClickListener(view -> {
-            Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
+
+            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[2]);
+            if (launchIntent != null) {
+                startActivity(launchIntent);//null pointer check in case package name was not found
+            }//si cela n'existe pas --> download it
+            else
+            {
+                GetApkNameFromServer(packagesNames[2]);
+            }
+
         });
         mButton4.setOnClickListener(view -> {
-            Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
+
+            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[3]);
+            if (launchIntent != null) {
+                startActivity(launchIntent);//null pointer check in case package name was not found
+            }//si cela n'existe pas --> download it
+            else
+            {
+                GetApkNameFromServer(packagesNames[3]);
+            }
+
         });
         mButton5.setOnClickListener(view -> {
-            Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
+
+            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[4]);
+            if (launchIntent != null) {
+                startActivity(launchIntent);//null pointer check in case package name was not found
+            }//si cela n'existe pas --> download it
+            else
+            {
+                GetApkNameFromServer(packagesNames[4]);
+            }
+
         });
         mButton6.setOnClickListener(view -> {
-            Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
+
+            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[5]);
+            if (launchIntent != null) {
+                startActivity(launchIntent);//null pointer check in case package name was not found
+            }//si cela n'existe pas --> download it
+            else
+            {
+                GetApkNameFromServer(packagesNames[5]);
+            }
+
         });
         mButton7.setOnClickListener(view -> {
-            Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
+
+            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[6]);
+            if (launchIntent != null) {
+                startActivity(launchIntent);//null pointer check in case package name was not found
+            }//si cela n'existe pas --> download it
+            else
+            {
+                GetApkNameFromServer(packagesNames[6]);
+            }
+
         });
         mButton8.setOnClickListener(view -> {
-            Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
+
+            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[7]);
+            if (launchIntent != null) {
+                startActivity(launchIntent);//null pointer check in case package name was not found
+            }//si cela n'existe pas --> download it
+            else
+            {
+                GetApkNameFromServer(packagesNames[7]);
+            }
+
         });
         mButton9.setOnClickListener(view -> {
-            Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
+
+            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[8]);
+            if (launchIntent != null) {
+                startActivity(launchIntent);//null pointer check in case package name was not found
+            }//si cela n'existe pas --> download it
+            else
+            {
+                GetApkNameFromServer(packagesNames[8]);
+            }
+
         });
         mButton10.setOnClickListener(view -> {
-            Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
+
+            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[9]);
+            if (launchIntent != null) {
+                startActivity(launchIntent);//null pointer check in case package name was not found
+            }//si cela n'existe pas --> download it
+            else
+            {
+                GetApkNameFromServer(packagesNames[9]);
+            }
+
         });
         mButton11.setOnClickListener(view -> {
-            Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
+
+            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[10]);
+            if (launchIntent != null) {
+                startActivity(launchIntent);//null pointer check in case package name was not found
+            }//si cela n'existe pas --> download it
+            else
+            {
+                GetApkNameFromServer(packagesNames[10]);
+            }
+
         });
         mButton12.setOnClickListener(view -> {
-            Toast.makeText(this, "Lancement App", Toast.LENGTH_SHORT).show();
+
+            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[11]);
+            if (launchIntent != null) {
+                startActivity(launchIntent);//null pointer check in case package name was not found
+            }//si cela n'existe pas --> download it
+            else
+            {
+                GetApkNameFromServer(packagesNames[11]);
+            }
+
         });
 
 
@@ -769,15 +888,203 @@ public class MainActivity extends AppCompatActivity{
         String reader = readFromFile(getApplicationContext());
         String[] readerSplit = reader.split("[,;]");
 
-        int s =0;
-        for (int i=0;i<=(readerSplit.length/3)-1;i++){
+        int i =0;
+        /*for (int i=0;i<=(readerSplit.length/3)-1;i++){
 
             readerSplit[s]=readerSplit[s].replaceAll("[\\s+]","");
 
             packagesNames[i]=readerSplit[s];
             s += 3;
+        }*/
+        for (String s : readerSplit){
+
+            if(i==0){
+
+                s=s.replaceAll("^\\s+","");
+
+            }
+
+            packagesNames[i]=s;
+
+            i++;
         }
         initializeButtons();
+
+    }
+
+    public void GetApkNameFromServer(String packageName){
+
+        String urlForApk;
+        urlForApk = BaseUrlSrv+"/APKRequest.php?package="+packageName;
+        Log.e("URL for APK's",urlForApk);
+
+        GestionDownload conn = new GestionDownload(this);
+        conn.execute(urlForApk);
+    }
+
+    public void download(String apk){
+        String path = Environment.getExternalStorageDirectory().getPath();
+
+        apkName=apk;
+        String storeUrl = BaseUrlSrv+"/Store/";
+
+        // Si le fichiers existe déja, on le supprime
+        File f = new File(path+apk);
+        if (f.exists())
+        {
+            f.delete();
+        }
+
+        Toast.makeText(this, "Je télécharge l'app "+apkName, Toast.LENGTH_SHORT).show();
+
+        //initialisation du gestionnaire de téléchargement
+        Intent intent2 = new Intent(Intent.ACTION_VIEW);
+        DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        Uri uri = Uri.parse(storeUrl+apkName);
+        final DownloadManager.Request request = new DownloadManager.Request(uri);
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
+
+        //Set the local destination for the downloaded file to a path within the application's external files directory
+        request.setDestinationInExternalFilesDir(this, Environment.DIRECTORY_DOWNLOADS, apkName);
+        myDownloadReference = downloadManager.enqueue(request);
+
+        //////////////////
+        ///progressBar///
+        ////////////////
+
+        final ProgressDialog progressBarDialog = new ProgressDialog(this);
+        progressBarDialog.setTitle("Téléchargement en cours ...");
+        progressBarDialog.setMessage("À la fin du téléchargement, appuyez sur installer");
+
+        progressBarDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressBarDialog.setCancelable(false);
+
+        progressBarDialog.setProgress(0);
+        //création d'un thead différent pour le téléchargemet (obligatoire)
+        Log.e("créatio d'un thread","telechargement");
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                //tant que cela télécharge, on boucle
+                while (downloading)
+                {
+
+                    DownloadManager.Query q = new DownloadManager.Query();
+                    q.setFilterById(myDownloadReference); //filter by id which you have receieved when reqesting download from download manager
+                    Cursor cursor = manager.query(q);
+                    cursor.moveToFirst();
+                    int bytes_downloaded = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+                    int bytes_total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+                    //permet de sortir de la boucle quand le téléchargement est fini
+                    if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
+                        downloading = false;
+                    }
+
+                    final int dl_progress = (int) ((bytes_downloaded * 100l) / bytes_total);
+                    runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            //affiche où en est le téléchargement
+                            progressBarDialog.setProgress((int) dl_progress);
+
+                        }
+                    });
+
+                    cursor.close();
+                }
+
+            }
+        }).start();
+
+
+        //show the dialog
+        progressBarDialog.show();
+        //////////////////////
+        //Fin progressBar////
+        ////////////////////
+
+
+        /////////////////////////////////////////////////////////////
+        // "surveille" la fin du téléchargement avant de l'éxécuter///
+        ///////////////////////////////////////////////////////////
+        IntentFilter filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+
+        final BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(final Context context, Intent intent) {
+
+                final long reference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+                if (myDownloadReference == reference) {
+                    //attendre 1 seconde avant d'éxécuter
+                    android.os.Handler handler = new android.os.Handler();
+                    handler.postDelayed(new Runnable() {
+                        public void run()
+                        {
+                            //executer le fichier
+                            String dir="";
+                            int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+                            dir = Environment.getExternalStorageDirectory().getPath();
+
+
+                            Log.e("dir", "data uri: "+ dir + apkName );
+                            File file = new File(dir, apkName);
+                            Intent promt = new Intent(Intent.ACTION_VIEW);
+                            promt.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
+                            promt.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            promt.putExtra(Intent.EXTRA_RETURN_RESULT, true);
+
+                            if (file.exists())
+                            {
+                                Log.e("dir", "data trouvé ");
+                                startActivity(promt);
+                            }
+                            else
+                            {
+                                Toast.makeText(MainActivity.this,"Fichier d'installation non trouvé",Toast.LENGTH_LONG).show();
+                            }
+
+                            downloading = false;
+                            progressBarDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Fermer", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // Check();
+                                    initializeButtons();
+                                }
+                            });
+                            progressBarDialog.hide();
+                            progressBar();
+
+                            // closeapp();
+                        }
+                    }, 600);
+                }
+
+            }
+        };
+        registerReceiver(receiver, filter);
+
+
+    }
+
+    private void progressBar()
+    {
+        //crée la progressBar de téléchargement
+        final ProgressDialog progressBarDialog2= new ProgressDialog(this);
+        progressBarDialog2.setTitle("Téléchargement terminé");
+        progressBarDialog2.setMessage("Appuyez sur Fermer");
+        progressBarDialog2.setCancelable(false);
+        progressBarDialog2.setButton(DialogInterface.BUTTON_NEGATIVE, "Fermer", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Check();
+                initializeButtons();
+            }
+        });
+        progressBarDialog2.show();
 
     }
 
