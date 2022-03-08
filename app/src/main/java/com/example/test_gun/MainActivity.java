@@ -37,6 +37,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -128,6 +129,7 @@ public class MainActivity extends AppCompatActivity{
 
         //Re-Affiche la barre de luminosité en fonciton de l'activation ou non du mode auto
         setSeekbarLumin();
+        initializeButtons();
 
     }
 
@@ -912,6 +914,7 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
+    //Demande au serveur l'APK à télécharger en fonction du nom de Package qu'on lui transmets
     public void GetApkNameFromServer(String packageName){
 
         String urlForApk;
@@ -922,14 +925,28 @@ public class MainActivity extends AppCompatActivity{
         conn.execute(urlForApk);
     }
 
+    //Télécharge l'APK sur le serveur
     public void download(String apk){
-        String path = Environment.getExternalStorageDirectory().getPath();
+        String path ;//= Environment.getExternalStorageDirectory().getPath();
+
+        //int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+        //if (currentapiVersion <= android.os.Build.VERSION_CODES.LOLLIPOP_MR1){
+        //    // Do something for JellyBean 4.2.2
+        //    path = "/mnt/sdcard/Android/data/com.example.info_jvs.launcher/files/Download";
+
+        //}
+        //else{
+        //    // do something for phones running an SDK above JellyBean
+        //    path = Environment.getExternalStorageDirectory() + "/android/data/com.example.info_jvs.launcher/files/Download/";
+
+        //}
+        path = Environment.getExternalStorageDirectory().getPath() + "/android/data/"+getPackageName()+"/files/Download/";
 
         apkName=apk;
         String storeUrl = BaseUrlSrv+"/Store/";
 
         // Si le fichiers existe déja, on le supprime
-        File f = new File(path+apk);
+        File f = new File(path+apkName);
         if (f.exists())
         {
             f.delete();
@@ -942,7 +959,7 @@ public class MainActivity extends AppCompatActivity{
         DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         Uri uri = Uri.parse(storeUrl+apkName);
         final DownloadManager.Request request = new DownloadManager.Request(uri);
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
 
         //Set the local destination for the downloaded file to a path within the application's external files directory
         request.setDestinationInExternalFilesDir(this, Environment.DIRECTORY_DOWNLOADS, apkName);
@@ -961,7 +978,6 @@ public class MainActivity extends AppCompatActivity{
 
         progressBarDialog.setProgress(0);
         //création d'un thead différent pour le téléchargemet (obligatoire)
-        Log.e("créatio d'un thread","telechargement");
         new Thread(new Runnable() {
 
             @Override
@@ -1025,17 +1041,38 @@ public class MainActivity extends AppCompatActivity{
                         public void run()
                         {
                             //executer le fichier
-                            String dir="";
-                            int currentapiVersion = android.os.Build.VERSION.SDK_INT;
-                            dir = Environment.getExternalStorageDirectory().getPath();
+                            //String dir="";
+                            //int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+                            //if (currentapiVersion <= android.os.Build.VERSION_CODES.LOLLIPOP_MR1){
+                            //    // Do something for JellyBean and above versions
+                            //    dir = Environment.getExternalStorageDirectory().getPath()+"/Android/data/"+getPackageName()+"/files/Download";
 
+                            //}
+                            //else{
+                            //    // do something for phones running an SDK above JellyBean
+                            //    dir = Environment.getExternalStorageDirectory() + "/android/data/"+getPackageName()+"/files/Download/";
+                            //}
+                            String dir = Environment.getExternalStorageDirectory()+"/android/data/"+getPackageName()+"/files/download/";
 
                             Log.e("dir", "data uri: "+ dir + apkName );
                             File file = new File(dir, apkName);
+
                             Intent promt = new Intent(Intent.ACTION_VIEW);
-                            promt.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
-                            promt.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            promt.putExtra(Intent.EXTRA_RETURN_RESULT, true);
+                            if(Build.VERSION.SDK_INT >= 24){
+
+                                Uri uriFile = FileProvider.getUriForFile(getApplicationContext(), getPackageName()+".provider",file);
+
+
+                                promt.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                                promt.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                promt.setDataAndType(uriFile,"application/vnd.android.package-archive");
+                                startActivity(promt);
+
+                            }else{
+                                promt.setDataAndType(Uri.fromFile(file),"application/vnd.android.package-archive");
+                                promt.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                promt.putExtra(Intent.EXTRA_RETURN_RESULT, true);
+                            }
 
                             if (file.exists())
                             {
@@ -1044,7 +1081,7 @@ public class MainActivity extends AppCompatActivity{
                             }
                             else
                             {
-                                Toast.makeText(MainActivity.this,"Fichier d'installation non trouvé",Toast.LENGTH_LONG).show();
+                                Toast.makeText(MainActivity.this,"Fichier d'installation non trouvé",Toast.LENGTH_SHORT).show();
                             }
 
                             downloading = false;
