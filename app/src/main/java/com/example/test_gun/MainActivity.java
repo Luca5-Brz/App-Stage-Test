@@ -2,6 +2,8 @@ package com.example.test_gun;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -10,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -87,12 +90,10 @@ public class MainActivity extends AppCompatActivity {
     public String deviceTitle; // Variable pour afficher un Titre sur le Gun
     public String ipAddr;//Adress IP compléte du device
 
-    //public String BaseUrlSrv = "http://212.166.21.236:8080";
-    public String BaseUrlSrv = "https://launcher.carrieresduhainaut.com/launcherdev";
+    public String BaseUrlSrv = "https://launcher.carrieresduhainaut.com/launcherdev/test_gun";
     public String urlSrv;
     public String[] packagesNames = {"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""};
     public String apkName = "";
-
 
     private long myDownloadReference;
     private boolean downloading = true;
@@ -109,13 +110,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Log.e("Check suite logique","Je vais demander les perms");
         askPermissions();
 
         setIpTitle();
 
         initialiserLocalisation();
 
-        urlSrv = BaseUrlSrv + "/StoreRequest.php?gun=" + deviceId+"&coordLg="+localisation.getLongitude()+"&coordLt="+localisation.getLatitude();
+        urlSrv = BaseUrlSrv + "/StoreRequest.php?gun=" + deviceId;
         Log.e("URL", urlSrv);
 
         ConnectionToServer conn = new ConnectionToServer(this);
@@ -135,17 +137,35 @@ public class MainActivity extends AppCompatActivity {
         //Verrouille l'orientation du Launcher seulement
         setOrientation();
 
+        if (Build.VERSION.SDK_INT <26){ //API 26 est Android 8
+            startService(new Intent(MainActivity.this, HUD.class));
+        }
+
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+
+            if (!hasFocus) {
+
+                Intent closeDialog = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+                sendBroadcast(closeDialog);
+
+                // Method that handles loss of window focus
+                new BlockStatusBar(this,false).collapseNow();
+            }
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        //Re-Affiche la barre de luminosité en fonciton de l'activation ou non du mode auto
+        //Re-Affiche la barre de luminosité en fonction de l'activation ou non du mode auto
         setSeekbarLumin();
         initializeButtons();
-
-        initialiserLocalisation();
 
     }
 
@@ -179,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
     public void setIpTitle() {
 
         //Récupération adresse IP
-        if (Build.VERSION.SDK_INT >= 18/*Build.VERSION_CODES.M*/) {
+        if (Build.VERSION.SDK_INT >= 17/*Build.VERSION_CODES.M*/) {
             //Demande des permissions
             //askPermissions();
 
@@ -241,13 +261,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-
-        //Cache la barre de status
-        hideStatusBar();
-    }
-
     //Verrouille l'orientaiton du launcher seulement
     @SuppressLint("SourceLockedOrientationActivity")
     public void setOrientation() {
@@ -262,12 +275,6 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-    }
-
-    //Cache la barre de Status
-    private void hideStatusBar() {
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 
     // Paramètrage de la barre de luminosité
@@ -342,7 +349,9 @@ public class MainActivity extends AppCompatActivity {
         int incrementNumBtn = 1;
 
         mButton1.getBackground().setAlpha(255);
-        mButton1.setBackgroundTintList(null);
+        if (Build.VERSION.SDK_INT >= 21){
+            mButton1.setBackgroundTintList(null);
+        }
         packageName = packagesNames[numBtn];
         numBtn += incrementNumBtn;
         if (!packageName.isEmpty()) {
@@ -362,7 +371,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mButton2.getBackground().setAlpha(255);
-        mButton2.setBackgroundTintList(null);
+        if (Build.VERSION.SDK_INT >= 21){
+            mButton2.setBackgroundTintList(null);
+        }
         packageName = packagesNames[numBtn];
         numBtn += incrementNumBtn;
         if (!packageName.isEmpty()) {
@@ -382,7 +393,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mButton3.getBackground().setAlpha(255);
-        mButton3.setBackgroundTintList(null);
+        if (Build.VERSION.SDK_INT >= 21){
+            mButton3.setBackgroundTintList(null);
+        }
         packageName = packagesNames[numBtn];
         numBtn += incrementNumBtn;
         if (!packageName.isEmpty()) {
@@ -402,7 +415,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mButton4.getBackground().setAlpha(255);
-        mButton4.setBackgroundTintList(null);
+        if (Build.VERSION.SDK_INT >= 21){
+            mButton4.setBackgroundTintList(null);
+        }
         packageName = packagesNames[numBtn];
         numBtn += incrementNumBtn;
         if (!packageName.isEmpty()) {
@@ -422,7 +437,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mButton5.getBackground().setAlpha(255);
-        mButton5.setBackgroundTintList(null);
+        if (Build.VERSION.SDK_INT >= 21){
+            mButton5.setBackgroundTintList(null);
+        }
         packageName = packagesNames[numBtn];
         numBtn += incrementNumBtn;
         if (!packageName.isEmpty()) {
@@ -442,7 +459,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mButton6.getBackground().setAlpha(255);
-        mButton6.setBackgroundTintList(null);
+        if (Build.VERSION.SDK_INT >= 21){
+            mButton6.setBackgroundTintList(null);
+        }
         packageName = packagesNames[numBtn];
         numBtn += incrementNumBtn;
         if (!packageName.isEmpty()) {
@@ -462,7 +481,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mButton7.getBackground().setAlpha(255);
-        mButton7.setBackgroundTintList(null);
+        if (Build.VERSION.SDK_INT >= 21){
+            mButton7.setBackgroundTintList(null);
+        }
         packageName = packagesNames[numBtn];
         numBtn += incrementNumBtn;
         if (!packageName.isEmpty()) {
@@ -482,7 +503,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mButton8.getBackground().setAlpha(255);
-        mButton8.setBackgroundTintList(null);
+        if (Build.VERSION.SDK_INT >= 21){
+            mButton8.setBackgroundTintList(null);
+        }
         packageName = packagesNames[numBtn];
         numBtn += incrementNumBtn;
         if (!packageName.isEmpty()) {
@@ -502,7 +525,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mButton9.getBackground().setAlpha(255);
-        mButton9.setBackgroundTintList(null);
+        if (Build.VERSION.SDK_INT >= 21){
+            mButton9.setBackgroundTintList(null);
+        }
         packageName = packagesNames[numBtn];
         numBtn += incrementNumBtn;
         if (!packageName.isEmpty()) {
@@ -522,7 +547,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mButton10.getBackground().setAlpha(255);
-        mButton10.setBackgroundTintList(null);
+        if (Build.VERSION.SDK_INT >= 21){
+            mButton10.setBackgroundTintList(null);
+        }
         packageName = packagesNames[numBtn];
         numBtn += incrementNumBtn;
         if (!packageName.isEmpty()) {
@@ -542,7 +569,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mButton11.getBackground().setAlpha(255);
-        mButton11.setBackgroundTintList(null);
+        if (Build.VERSION.SDK_INT >= 21){
+            mButton11.setBackgroundTintList(null);
+        }
         packageName = packagesNames[numBtn];
         numBtn += incrementNumBtn;
         if (!packageName.isEmpty()) {
@@ -562,7 +591,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mButton12.getBackground().setAlpha(255);
-        mButton12.setBackgroundTintList(null);
+        if (Build.VERSION.SDK_INT >= 21){
+            mButton12.setBackgroundTintList(null);
+        }
         packageName = packagesNames[numBtn];
         numBtn += incrementNumBtn;
         if (!packageName.isEmpty()) {
@@ -587,139 +618,68 @@ public class MainActivity extends AppCompatActivity {
     //Paramètre l'action à effectuer lors d'un appui sur un bouton.
     public void setOnClick() {
 
+        urlSrv = BaseUrlSrv+"/checkVersionLucas.php?package=";
+
         mButton1.setOnClickListener(view -> {
 
-            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[0]);
-            if (launchIntent != null) {
-                startActivity(launchIntent);//null pointer check in case package name was not found
-            }//si cela n'existe pas --> download it
-            else {
-                GetApkNameFromServer(packagesNames[0]);
-            }
+            testInstall(packagesNames[0]);
 
         });
         mButton2.setOnClickListener(view -> {
 
-            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[1]);
-            if (launchIntent != null) {
-                startActivity(launchIntent);//null pointer check in case package name was not found
-            }//si cela n'existe pas --> download it
-            else {
-                GetApkNameFromServer(packagesNames[1]);
-            }
+            testInstall(packagesNames[1]);
 
         });
         mButton3.setOnClickListener(view -> {
 
-            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[2]);
-            if (launchIntent != null) {
-                startActivity(launchIntent);//null pointer check in case package name was not found
-            }//si cela n'existe pas --> download it
-            else {
-                GetApkNameFromServer(packagesNames[2]);
-            }
+            testInstall(packagesNames[2]);
 
         });
         mButton4.setOnClickListener(view -> {
 
-            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[3]);
-            if (launchIntent != null) {
-                startActivity(launchIntent);//null pointer check in case package name was not found
-            }//si cela n'existe pas --> download it
-            else {
-                GetApkNameFromServer(packagesNames[3]);
-            }
+            testInstall(packagesNames[3]);
 
         });
         mButton5.setOnClickListener(view -> {
 
-            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[4]);
-            if (launchIntent != null) {
-                startActivity(launchIntent);//null pointer check in case package name was not found
-            }//si cela n'existe pas --> download it
-            else {
-                GetApkNameFromServer(packagesNames[4]);
-            }
+            testInstall(packagesNames[4]);
 
         });
         mButton6.setOnClickListener(view -> {
 
-            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[5]);
-            if (launchIntent != null) {
-                startActivity(launchIntent);//null pointer check in case package name was not found
-            }//si cela n'existe pas --> download it
-            else {
-                GetApkNameFromServer(packagesNames[5]);
-            }
+            testInstall(packagesNames[5]);
 
         });
         mButton7.setOnClickListener(view -> {
 
-            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[6]);
-            if (launchIntent != null) {
-                startActivity(launchIntent);//null pointer check in case package name was not found
-            }//si cela n'existe pas --> download it
-            else {
-                GetApkNameFromServer(packagesNames[6]);
-            }
+            testInstall(packagesNames[6]);
 
         });
         mButton8.setOnClickListener(view -> {
 
-            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[7]);
-            if (launchIntent != null) {
-                startActivity(launchIntent);//null pointer check in case package name was not found
-            }//si cela n'existe pas --> download it
-            else {
-                GetApkNameFromServer(packagesNames[7]);
-            }
+            testInstall(packagesNames[7]);
 
         });
         mButton9.setOnClickListener(view -> {
 
-            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[8]);
-            if (launchIntent != null) {
-                startActivity(launchIntent);//null pointer check in case package name was not found
-            }//si cela n'existe pas --> download it
-            else {
-                GetApkNameFromServer(packagesNames[8]);
-            }
+            testInstall(packagesNames[8]);
 
         });
         mButton10.setOnClickListener(view -> {
 
-            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[9]);
-            if (launchIntent != null) {
-                startActivity(launchIntent);//null pointer check in case package name was not found
-            }//si cela n'existe pas --> download it
-            else {
-                GetApkNameFromServer(packagesNames[9]);
-            }
+            testInstall(packagesNames[9]);
 
         });
         mButton11.setOnClickListener(view -> {
 
-            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[10]);
-            if (launchIntent != null) {
-                startActivity(launchIntent);//null pointer check in case package name was not found
-            }//si cela n'existe pas --> download it
-            else {
-                GetApkNameFromServer(packagesNames[10]);
-            }
+            testInstall(packagesNames[10]);
 
         });
         mButton12.setOnClickListener(view -> {
 
-            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packagesNames[11]);
-            if (launchIntent != null) {
-                startActivity(launchIntent);//null pointer check in case package name was not found
-            }//si cela n'existe pas --> download it
-            else {
-                GetApkNameFromServer(packagesNames[11]);
-            }
+            testInstall(packagesNames[11]);
 
         });
-
 
         /* Lors ce qu'on appuie sur le bouton "Options"
             on ouvre la page avec les options utilisateurs*/
@@ -728,9 +688,11 @@ public class MainActivity extends AppCompatActivity {
             startActivity(optionActivity);
         });
 
-        //Kill l'applicatin "CDH" quand on appui sur le bouton "Stop Application CDH"
+        //Kill l'application "CDH" quand on appui sur le bouton "Stop Application CDH"
         mButtonStopCDH.setOnClickListener(view -> {
-
+            Toast.makeText(this, "Killed", Toast.LENGTH_LONG).show();
+            ActivityManager am = (ActivityManager) getSystemService(Activity.ACTIVITY_SERVICE);
+            am.killBackgroundProcesses("com.computerland.cdh.mobile");
         });
 
         //Accés aux paramétres d'Android. Action bloquée par un mot de passe
@@ -771,12 +733,82 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //Actualise l'affichage du Launcher
-        mButtonMAJ.setOnClickListener(view -> Toast.makeText(MainActivity.this, "Mise à jour de l'ATH", Toast.LENGTH_SHORT).show());
+        mButtonMAJ.setOnClickListener(view -> {
+            /*Intent intent = new Intent(MainActivity.this, MainActivity.class);
+            Bundle b = new Bundle();
+            b.putString("packageName","com.example.info_jvs.launcher");
+            b.putString("apkName","launcher.apk");
+            intent.putExtras(b); //Put your id to your next Intent
+            startActivity(intent);*/
+        });
 
+    }
+
+    //vérifie si l'application est installée ou non
+    public void testInstall(String packageName){
+        PackageInfo pkgInfo = null;
+        boolean appInstallee=false;
+        try {
+            pkgInfo = getApplicationContext().getPackageManager().getPackageInfo(packageName, 0);
+            appInstallee=true;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        if (appInstallee){
+            String ver = pkgInfo.versionName;
+
+            //Requete vers le serveur avec la version et le nom du package
+            urlSrv += packageName + "&version="+ver;
+            //urlSrv += packageName + "&version=2.2.2";
+            Log.e("TEST URL", urlSrv);
+
+            CheckVersionOnServer checkVersionOnServer = new CheckVersionOnServer(this);
+            checkVersionOnServer.execute(urlSrv);
+        }else{
+            GetApkNameFromServer(packageName);
+        }
+    }
+
+    //Check le version installe, si bonne version => lance l'app. Si pas télécharge la bonne version
+    public void checkVersion(String result){
+        String[] resultRequest = result.split("[;]");
+
+        Intent launchIntent = getPackageManager().getLaunchIntentForPackage(resultRequest[2]); //resultRequest[2] = nom du package
+
+        if (resultRequest[0].equals("OK")) {
+            startActivity(launchIntent);
+
+        }else if(resultRequest[0].equals("Pas_OK")){
+            //on désinstall l'app
+            desinstallApp(resultRequest[2]);
+
+            //On ré-install l'app
+            GetApkNameFromServer(resultRequest[2]);
+
+            Toast.makeText(this, "Pas bonne version", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void desinstallApp(String appName){
+        Toast.makeText(this, "Je désinstalle l'App", Toast.LENGTH_SHORT).show();
+        File dir = new File(Environment.getExternalStorageDirectory() + "/Android/data/"+getPackageName()+"/files/Download/");
+        if (dir.isDirectory())
+        {
+            String[] children = dir.list();
+            for (String child : children) {
+                new File(dir, child).delete();
+            }
+        }
+
+        Intent intent = new Intent(Intent.ACTION_DELETE);
+        intent.setData(Uri.parse("package:"+appName));
+        startActivity(intent);
     }
 
     //Demande au User l'accés aux permissions voulues
     public void askPermissions() {
+        Log.e("Perms GENERAL", "Je check toutes les perms");
         String[] mPermissionsTab = {Manifest.permission.ACCESS_FINE_LOCATION, //liste des permissions à demander
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.READ_PHONE_STATE,
@@ -797,13 +829,16 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 //On a déjà les permissions alors on passe à le demande suivante
                 askPermissionsWriteSettings();
+                askPermissionsOverlay();
             }
         }
+        askPermissionsWriteSettings();
+        askPermissionsOverlay();
     }
 
     //Permission d'accés aux paramétres système
     public void askPermissionsWriteSettings() {
-
+        Log.e("Perms GENERAL", "Je Check Parametres");
         if (Build.VERSION.SDK_INT >= 23) {
 
             if (!Settings.System.canWrite(getApplicationContext())) {
@@ -812,6 +847,19 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+    }
+
+    public void askPermissionsOverlay(){
+        Log.e("Perms GENERAL", "Je check overlay");
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+            //Toast.makeText(this,"settings overlay",Toast.LENGTH_LONG).show();
+            if (!Settings.canDrawOverlays(getApplicationContext())) {
+                Intent intentOverlayPermission = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
+                startActivity(intentOverlayPermission);
+            }
+        }
     }
 
     @Override
@@ -912,17 +960,6 @@ public class MainActivity extends AppCompatActivity {
     public void download(String apk) {
         String path;//= Environment.getExternalStorageDirectory().getPath();
 
-        //int currentapiVersion = android.os.Build.VERSION.SDK_INT;
-        //if (currentapiVersion <= android.os.Build.VERSION_CODES.LOLLIPOP_MR1){
-        //    // Do something for JellyBean 4.2.2
-        //    path = "/mnt/sdcard/Android/data/com.example.info_jvs.launcher/files/Download";
-
-        //}
-        //else{
-        //    // do something for phones running an SDK above JellyBean
-        //    path = Environment.getExternalStorageDirectory() + "/android/data/com.example.info_jvs.launcher/files/Download/";
-
-        //}
         path = Environment.getExternalStorageDirectory().getPath() + "/android/data/" + getPackageName() + "/files/Download/";
 
         apkName = apk;
@@ -962,6 +999,7 @@ public class MainActivity extends AppCompatActivity {
         //création d'un thead différent pour le téléchargemet (obligatoire)
         new Thread(new Runnable() {
 
+            @SuppressLint("Range")
             @Override
             public void run() {
 
@@ -1141,26 +1179,25 @@ public class MainActivity extends AppCompatActivity {
                     // on notifie la localisation
                     gpsListener.onLocationChanged(localisation);
 
+                    urlSrv = BaseUrlSrv + "/LogPositionGPSLucas.php?gun=" + deviceId+"&coordLg="+localisation.getLongitude()+"&coordLt="+localisation.getLatitude();
+                    Log.e("GPS URL", urlSrv);
+
+                    ConnectionToServer conn = new ConnectionToServer(this);
+                    conn.execute(urlSrv);
+
+                    AlertDialog diagCoord = new AlertDialog.Builder(this)
+                            .setTitle("Coordonnées")
+                            .setMessage("Longitude : "+localisation.getLongitude()+"\nLatitude : "+localisation.getLatitude())
+                            .setCancelable(true)
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                }
+                            })
+                            .create();
+                    diagCoord.show();
                 }
-
-
-                // on configure la mise à jour automatique : au moins 10 mètres et 15 secondes
-
-                locationManager.requestLocationUpdates(fournisseur, 3600000, 10, gpsListener);
-
-                AlertDialog diagCoord = new AlertDialog.Builder(this)
-                        .setTitle("Coordonnées")
-                        .setMessage("Longitude : "+localisation.getLongitude()+"\nLatitude : "+localisation.getLatitude())
-                        .setCancelable(true)
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-
-                            }
-                        })
-                        .create();
-                diagCoord.show();
-
             }
         }else{
             Log.e("Perms GPS","J'ai pas les perms");

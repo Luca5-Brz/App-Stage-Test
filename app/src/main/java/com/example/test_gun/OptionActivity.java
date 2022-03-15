@@ -1,5 +1,6 @@
 package com.example.test_gun;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -10,17 +11,20 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class OptionActivity extends AppCompatActivity {
@@ -33,6 +37,7 @@ public class OptionActivity extends AppCompatActivity {
     private Button mButton4g;
     private Button mButtonWifi;
     private Button mButtonClavier;
+    private TextView mTextViewDate;
 
     private int mLuminAuto; //Indique le mode automatique de la luminosité
     private int mRotationAuto; //Indique le mode automatique de la rotation
@@ -50,7 +55,7 @@ public class OptionActivity extends AppCompatActivity {
         mSeekbarVolume = findViewById(R.id.option_seekbar_volume);
         mButton4g = findViewById(R.id.option_button_4g);
         mButtonWifi = findViewById(R.id.option_button_wifi);
-        mButtonClavier = findViewById(R.id.option_button_clavier);
+        mTextViewDate = findViewById(R.id.option_textView_date);
 
     //Récuperation de la luminosité et de la rotation actives
         mLuminAuto = getLuminAuto();
@@ -68,11 +73,22 @@ public class OptionActivity extends AppCompatActivity {
             mSwitchRotation.setChecked(false);
         }
 
-
+        setDate();
 
         setOnClick();
         setSeekBarVolume();
 
+    }
+
+    public void setDate(){
+
+        Date date = Calendar.getInstance().getTime();
+        @SuppressLint("SimpleDateFormat")
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+
+        String dateAff = dateFormat.format(date);
+
+        mTextViewDate.setText("Date : "+dateAff);
     }
 
     public void setOnClick(){
@@ -134,24 +150,6 @@ public class OptionActivity extends AppCompatActivity {
                 checkWifiNetwork();
             }
         });
-
-        mButtonClavier.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                InputMethodManager mInputMngr = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-
-                if (mInputMngr!=null){
-                    mInputMngr.showInputMethodPicker();
-                }
-
-
-            }
-        });
-
-
-
-
         
     }
 
