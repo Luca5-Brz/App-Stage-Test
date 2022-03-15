@@ -71,7 +71,7 @@ public class ConnectionToServer extends AsyncTask<String, String, String>{
 
             try {
                 actiTest.writeToFile(result, actiTest.getApplicationContext());
-                actiTest.splitString();
+                //actiTest.splitString();
             } catch (Exception e) {
                 e.printStackTrace();
             }

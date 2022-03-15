@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -28,7 +29,6 @@ public class CheckRunningApp extends Service {
         return null;
     }
 
-    ScheduledExecutorService scheduleTaskExecutor = Executors.newScheduledThreadPool(5);
 
     @Override
     public void onCreate() {
@@ -39,19 +39,24 @@ public class CheckRunningApp extends Service {
 
 // This schedule a runnable task every 1 second
         scheduleTaskExecutor.scheduleAtFixedRate(() -> {
+            Log.e("SCHEDULE MACHIN","lancé");
             int numberOfTasks = 1;
             ActivityManager m = (ActivityManager)getApplicationContext().getSystemService(ACTIVITY_SERVICE);
+            Log.e("ACTIVITY Manager", ""+m);
 //Get some number of running tasks and grab the first one.  getRunningTasks returns newest to oldest
             ActivityManager.RunningTaskInfo task = m.getRunningTasks(numberOfTasks).get(0);
-
+            Log.e("ACTIVITY",""+task);
 
             List<ActivityManager.RunningTaskInfo> taskInfo = m.getRunningTasks(1);
-             Log.e("topActivity", "CURRENT Activity ::" + taskInfo.get(0).topActivity.getClassName());
+            Log.e("topActivity", "CURRENT Activity ::" + taskInfo.get(0).topActivity.getClassName());
             ComponentName componentInfo = taskInfo.get(0).topActivity;
             componentInfo.getPackageName();
 //Build output
             String output  = task.baseActivity.toShortString();
+            Log.e("OUTPUT",output);
             String[] output2 =output.split("[{/]");
+
+            Log.e("TAG", output2[1] + "--> applicatione !");
 
             boolean isallowed=isAllowed(output2[1]);
 
@@ -61,7 +66,7 @@ public class CheckRunningApp extends Service {
             else if ("com.teamviewer.quicksupport.market".equals(output2[1])){}
             else if ("com.android.packageinstaller".equals(output2[1])){}
             else if ("com.google.android.location".equals(output2[1])){}
-            else if (isallowed) {}
+            else if (isallowed==true) {}
             else
             {
                 Log.e("TAG", output2[1] + "--> Refusé !");
@@ -79,12 +84,11 @@ public class CheckRunningApp extends Service {
     }
 
 
-
+    ScheduledExecutorService scheduleTaskExecutor = Executors.newScheduledThreadPool(5);
     public void splitIt() {
         Log.e("CHECK RUNNING","splitIt lancé");
         String reader = readFromFile(getApplicationContext());
         String[] readerSplit = reader.split("[,;]");
-
         int i = 0;
         for (String s : readerSplit) {
             if (i == 0) {
@@ -93,7 +97,6 @@ public class CheckRunningApp extends Service {
             partsOfJsonString[i] = s;
             i++;
         }
-
     }
 
     private String readFromFile(Context context) {
@@ -131,7 +134,8 @@ public class CheckRunningApp extends Service {
 
         //utilisé par le service de vérification des taches en cours (checkRunningActivity class)
         boolean Occurence=false;
-        for (String appInArray : partsOfJsonString) {
+        for (int i = 0 ; i < partsOfJsonString.length ; i++) {
+            String appInArray = partsOfJsonString[i];
             if (appName.equals(appInArray)) {
                 Occurence = true;
             }

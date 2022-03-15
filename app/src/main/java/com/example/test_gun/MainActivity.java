@@ -141,7 +141,8 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT <26){ //API 26 est Android 8
             startService(new Intent(MainActivity.this, HUD.class));
         }
-        startService(new Intent(MainActivity.this, CheckRunningApp.class));
+        //startService(new Intent(MainActivity.this, CheckRunningApp.class));
+        splitString();
 
     }
 
@@ -621,8 +622,6 @@ public class MainActivity extends AppCompatActivity {
     //Paramètre l'action à effectuer lors d'un appui sur un bouton.
     public void setOnClick() {
 
-        urlSrv = BaseUrlSrv+"/checkVersionLucas.php?package=";
-
         mButton1.setOnClickListener(view -> {
 
             testInstall(packagesNames[0]);
@@ -749,6 +748,7 @@ public class MainActivity extends AppCompatActivity {
 
     //vérifie si l'application est installée ou non
     public void testInstall(String packageName){
+        urlSrv = BaseUrlSrv+"/checkVersionLucas.php?package=";
         PackageInfo pkgInfo = null;
         boolean appInstallee=false;
         try {
@@ -759,7 +759,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (appInstallee){
-            Log.e("APP IS INSTALL","C'est installé");
+            Log.e("APP IS INSTALL",packageName+" est installé");
             String ver = pkgInfo.versionName;
 
             //Requete vers le serveur avec la version et le nom du package
@@ -868,6 +868,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intentOverlayPermission);
             }
         }
+        startService(new Intent(MainActivity.this, CheckRunningApp.class));
     }
 
     @Override
@@ -890,7 +891,7 @@ public class MainActivity extends AppCompatActivity {
             outputStreamWriter.write(data);
             outputStreamWriter.close();
         } catch (IOException e) {
-            Log.e("Exception", "File write failed: " + e.toString());
+            Log.e("Exception", "File write failed: " + e);
         }
     }
 
@@ -934,8 +935,8 @@ public class MainActivity extends AppCompatActivity {
             packagesNames[i] = s;
             i++;
         }
-        initializeButtons();
         startService(new Intent(MainActivity.this,CheckRunningApp.class));
+        initializeButtons();
 
     }
 
@@ -1179,7 +1180,7 @@ public class MainActivity extends AppCompatActivity {
                     ConnectionToServer conn = new ConnectionToServer(this);
                     conn.execute(urlSrv);
 
-                    AlertDialog diagCoord = new AlertDialog.Builder(this)
+                    /*AlertDialog diagCoord = new AlertDialog.Builder(this)
                             .setTitle("Coordonnées")
                             .setMessage("Longitude : "+localisation.getLongitude()+"\nLatitude : "+localisation.getLatitude())
                             .setCancelable(true)
@@ -1190,7 +1191,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             })
                             .create();
-                    diagCoord.show();
+                    diagCoord.show();*/
                 }
             }
         }else{
