@@ -130,8 +130,9 @@ public class MainActivity extends AppCompatActivity {
         setSeekbarLumin();
 
         //Paramètre l'action des différents boutons présent sur l'ATH
-        setOnClick();
         initializeButtons();
+        setOnClick();
+
 
 
         //Verrouille l'orientation du Launcher seulement
@@ -140,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT <26){ //API 26 est Android 8
             startService(new Intent(MainActivity.this, HUD.class));
         }
+        startService(new Intent(MainActivity.this, CheckRunningApp.class));
 
     }
 
@@ -166,6 +168,7 @@ public class MainActivity extends AppCompatActivity {
         //Re-Affiche la barre de luminosité en fonction de l'activation ou non du mode auto
         setSeekbarLumin();
         initializeButtons();
+        startService(new Intent(this,CheckRunningApp.class));
 
     }
 
@@ -892,7 +895,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public String readFromFile(Context context) {
-
         String ret = "";
 
         try {
@@ -907,7 +909,6 @@ public class MainActivity extends AppCompatActivity {
                 while ((receiveString = bufferedReader.readLine()) != null) {
                     stringBuilder.append(receiveString);
                 }
-
                 inputStream.close();
                 ret = stringBuilder.toString();
             }
@@ -922,31 +923,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void splitString() {
-
         String reader = readFromFile(getApplicationContext());
         String[] readerSplit = reader.split("[,;]");
 
         int i = 0;
-        /*for (int i=0;i<=(readerSplit.length/3)-1;i++){
-
-            readerSplit[s]=readerSplit[s].replaceAll("[\\s+]","");
-
-            packagesNames[i]=readerSplit[s];
-            s += 3;
-        }*/
         for (String s : readerSplit) {
-
             if (i == 0) {
-
                 s = s.replaceAll("^\\s+", "");
-
             }
-
             packagesNames[i] = s;
-
             i++;
         }
         initializeButtons();
+        startService(new Intent(MainActivity.this,CheckRunningApp.class));
 
     }
 

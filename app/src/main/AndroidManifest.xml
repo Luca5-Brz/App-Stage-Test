@@ -28,6 +28,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TestGun">
+
+        <service android:name=".HUD" android:enabled="true" />
+        <service android:name=".CheckRunningApp"/>
+
         <activity
             android:name=".OptionActivity"
             android:exported="false" />
@@ -53,10 +57,6 @@
             android:name="android.support.FILE_PROVIDER_PATHS"
             android:resource="@xml/provider_paths" />
     </provider>
-
-        <service
-            android:name=".HUD"
-            android:enabled="true" />
 
     </application>
 

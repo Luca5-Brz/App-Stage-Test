@@ -15,10 +15,6 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-/**
- * Created by info-jvs on 23-08-17.
- */
-
 public class HUD extends Service {
     HUDView mView;
 
@@ -30,9 +26,7 @@ public class HUD extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        //Toast.makeText(this, "Service HUD Started", Toast.LENGTH_LONG).show();
 
-        //Toast.makeText(getBaseContext(),"HUD Service starting", Toast.LENGTH_LONG).show();
         Log.e("TAG","HUD start");
         mView = new HUDView(this);
 
