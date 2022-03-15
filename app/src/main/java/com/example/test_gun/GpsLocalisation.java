@@ -1,15 +1,9 @@
 package com.example.test_gun;
 
-import android.content.DialogInterface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 
 public class GpsLocalisation extends MainActivity implements LocationListener
 {

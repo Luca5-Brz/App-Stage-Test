@@ -7,6 +7,14 @@
     android:padding="20dp"
     >
 
+    <TextView
+        android:id="@+id/option_textView_date"
+        android:layout_width="match_parent"
+        android:layout_height="25dp"
+        android:layout_marginVertical="20dp"
+        android:text="Date : "
+        />
+
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/option_switch_lumAuto"
         android:layout_width="match_parent"
@@ -50,13 +58,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Réactiver le Wifi"
-        />
-
-    <Button
-        android:id="@+id/option_button_clavier"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Choisir un clavier"
         />
 
 
