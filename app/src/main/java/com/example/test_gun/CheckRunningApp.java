@@ -120,8 +120,8 @@ public class CheckRunningApp extends Service {
             }
         } catch (FileNotFoundException e) {
             Log.e("login activity", "File not found: ");
-            Log.e("login activity", "Can not read file: ");
         } catch (IOException e) {
+            Log.e("login activity", "Can not read file: ");
             e.printStackTrace();
         }
 

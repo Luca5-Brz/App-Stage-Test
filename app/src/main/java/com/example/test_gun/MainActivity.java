@@ -39,6 +39,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -120,8 +121,9 @@ public class MainActivity extends AppCompatActivity {
         urlSrv = BaseUrlSrv + "/StoreRequest.php?gun=" + deviceId;
         Log.e("URL", urlSrv);
 
-        ConnectionToServer conn = new ConnectionToServer(this);
+        ConnectionToServer conn = new ConnectionToServer();//this);
         conn.execute(urlSrv);
+
 
         //Instanciation de différents composants visuels
         instanciationXMLComponents();
@@ -837,11 +839,22 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 //On a déjà les permissions alors on passe à le demande suivante
                 askPermissionsWriteSettings();
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode==0){
+            if (resultCode==RESULT_CANCELED){
                 askPermissionsOverlay();
             }
         }
-        askPermissionsWriteSettings();
-        askPermissionsOverlay();
+        if(requestCode==1 && resultCode==RESULT_CANCELED){
+            initializeButtons();
+        }
+
     }
 
     //Permission d'accés aux paramétres système
@@ -851,7 +864,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (!Settings.System.canWrite(getApplicationContext())) {
                 Intent intentWriteSettings = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:" + getPackageName()));
-                startActivity(intentWriteSettings);
+                startActivityForResult(intentWriteSettings,0);
             }
         }
 
@@ -865,10 +878,11 @@ public class MainActivity extends AppCompatActivity {
             //Toast.makeText(this,"settings overlay",Toast.LENGTH_LONG).show();
             if (!Settings.canDrawOverlays(getApplicationContext())) {
                 Intent intentOverlayPermission = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
-                startActivity(intentOverlayPermission);
+                startActivityForResult(intentOverlayPermission,1);
             }
         }
         startService(new Intent(MainActivity.this, CheckRunningApp.class));
+        initializeButtons();
     }
 
     @Override
@@ -897,16 +911,13 @@ public class MainActivity extends AppCompatActivity {
 
     public String readFromFile(Context context) {
         String ret = "";
-
         try {
             InputStream inputStream = context.openFileInput("buttonConfig.txt");
-
             if (inputStream != null) {
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
                 String receiveString = "";
                 StringBuilder stringBuilder = new StringBuilder();
-
                 while ((receiveString = bufferedReader.readLine()) != null) {
                     stringBuilder.append(receiveString);
                 }
@@ -915,11 +926,10 @@ public class MainActivity extends AppCompatActivity {
             }
         } catch (FileNotFoundException e) {
             Log.e("login activity", "File not found: ");
-            Log.e("login activity", "Can not read file: ");
         } catch (IOException e) {
             e.printStackTrace();
+            Log.e("login activity", "Can not read file: ");
         }
-
         return ret;
     }
 
@@ -1177,21 +1187,9 @@ public class MainActivity extends AppCompatActivity {
                     urlSrv = BaseUrlSrv + "/LogPositionGPSLucas.php?gun=" + deviceId+"&coordLg="+localisation.getLongitude()+"&coordLt="+localisation.getLatitude();
                     Log.e("GPS URL", urlSrv);
 
-                    ConnectionToServer conn = new ConnectionToServer(this);
+                    ConnectionToServer conn = new ConnectionToServer();//this);
                     conn.execute(urlSrv);
 
-                    /*AlertDialog diagCoord = new AlertDialog.Builder(this)
-                            .setTitle("Coordonnées")
-                            .setMessage("Longitude : "+localisation.getLongitude()+"\nLatitude : "+localisation.getLatitude())
-                            .setCancelable(true)
-                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-
-                                }
-                            })
-                            .create();
-                    diagCoord.show();*/
                 }
             }
         }else{

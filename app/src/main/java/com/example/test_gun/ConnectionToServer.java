@@ -20,9 +20,9 @@ public class ConnectionToServer extends AsyncTask<String, String, String>{
     @SuppressLint("StaticFieldLeak")
     MainActivity actiTest;
 
-    public ConnectionToServer(MainActivity actiTest) {
+    /*public ConnectionToServer(MainActivity actiTest) {
         this.actiTest = actiTest;
-    }
+    }*/
 
     protected String doInBackground(String... params) {
 
