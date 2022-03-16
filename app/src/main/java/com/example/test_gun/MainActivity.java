@@ -111,9 +111,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Log.e("Check suite logique","Je vais demander les perms");
-        askPermissions();
+       if(Build.VERSION.SDK_INT < 23 ){
+           startProcess();
+       }else {
+           Log.e("Check suite logique", "Je vais demander les perms");
+           askPermissions();
+       }
 
+    }
+
+    public void startProcess(){
+        Log.e("STARTPROCESS","StartProcess() démarré");
         setIpTitle();
 
         initialiserLocalisation();
@@ -121,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
         urlSrv = BaseUrlSrv + "/StoreRequest.php?gun=" + deviceId;
         Log.e("URL", urlSrv);
 
-        ConnectionToServer conn = new ConnectionToServer();//this);
+        ConnectionToServer conn = new ConnectionToServer(this);//this);
         conn.execute(urlSrv);
 
 
@@ -132,7 +140,6 @@ public class MainActivity extends AppCompatActivity {
         setSeekbarLumin();
 
         //Paramètre l'action des différents boutons présent sur l'ATH
-        initializeButtons();
         setOnClick();
 
 
@@ -143,9 +150,6 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT <26){ //API 26 est Android 8
             startService(new Intent(MainActivity.this, HUD.class));
         }
-        //startService(new Intent(MainActivity.this, CheckRunningApp.class));
-        splitString();
-
     }
 
     @Override
@@ -162,17 +166,6 @@ public class MainActivity extends AppCompatActivity {
                 new BlockStatusBar(this,false).collapseNow();
             }
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        //Re-Affiche la barre de luminosité en fonction de l'activation ou non du mode auto
-        setSeekbarLumin();
-        initializeButtons();
-        startService(new Intent(this,CheckRunningApp.class));
-
     }
 
     //Méthode pour avoir la mac Addr
@@ -852,7 +845,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         if(requestCode==1 && resultCode==RESULT_CANCELED){
-            initializeButtons();
+            startProcess();
         }
 
     }
@@ -865,6 +858,8 @@ public class MainActivity extends AppCompatActivity {
             if (!Settings.System.canWrite(getApplicationContext())) {
                 Intent intentWriteSettings = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:" + getPackageName()));
                 startActivityForResult(intentWriteSettings,0);
+            }else{
+                askPermissionsOverlay();
             }
         }
 
@@ -879,10 +874,10 @@ public class MainActivity extends AppCompatActivity {
             if (!Settings.canDrawOverlays(getApplicationContext())) {
                 Intent intentOverlayPermission = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
                 startActivityForResult(intentOverlayPermission,1);
+            }else{
+                startProcess();
             }
         }
-        startService(new Intent(MainActivity.this, CheckRunningApp.class));
-        initializeButtons();
     }
 
     @Override
@@ -1112,7 +1107,7 @@ public class MainActivity extends AppCompatActivity {
                                     initializeButtons();
                                 }
                             });
-                            progressBarDialog.hide();
+                            progressBarDialog.dismiss();
                             progressBar();
 
                             // closeapp();
@@ -1187,7 +1182,7 @@ public class MainActivity extends AppCompatActivity {
                     urlSrv = BaseUrlSrv + "/LogPositionGPSLucas.php?gun=" + deviceId+"&coordLg="+localisation.getLongitude()+"&coordLt="+localisation.getLatitude();
                     Log.e("GPS URL", urlSrv);
 
-                    ConnectionToServer conn = new ConnectionToServer();//this);
+                    EnvoieGPSToServer conn = new EnvoieGPSToServer();//this);
                     conn.execute(urlSrv);
 
                 }

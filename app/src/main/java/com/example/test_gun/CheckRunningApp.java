@@ -66,7 +66,7 @@ public class CheckRunningApp extends Service {
             else if ("com.teamviewer.quicksupport.market".equals(output2[1])){}
             else if ("com.android.packageinstaller".equals(output2[1])){}
             else if ("com.google.android.location".equals(output2[1])){}
-            else if (isallowed==true) {}
+            else if (isallowed) {}
             else
             {
                 Log.e("TAG", output2[1] + "--> Refusé !");
@@ -74,6 +74,7 @@ public class CheckRunningApp extends Service {
                 startActivity(launchIntent);
             }
         }, 0, 1, TimeUnit.SECONDS);
+        Log.e("TESTTTTT","Juste apres le schedule machin");
     }
 
     @Override

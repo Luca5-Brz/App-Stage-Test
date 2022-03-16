@@ -1,6 +1,5 @@
 package com.example.test_gun;
 
-import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -13,16 +12,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 
-public class ConnectionToServer extends AsyncTask<String, String, String>{
-
-    public String packagesNames;
-
-    @SuppressLint("StaticFieldLeak")
-    MainActivity actiTest;
-
-    public ConnectionToServer(MainActivity actiTest) {
-        this.actiTest = actiTest;
-    }
+public class EnvoieGPSToServer extends AsyncTask<String, String, String>{
 
     protected String doInBackground(String... params) {
 
@@ -60,21 +50,11 @@ public class ConnectionToServer extends AsyncTask<String, String, String>{
     protected void onPostExecute(String result) {
         super.onPostExecute(result);
 
-        //result = ce que le serveur renvoie (les noms des packages)
-        packagesNames = result;
-
         if (result==null){ //Le serveur ne répond pas
             Log.e("Retour Serveur","Pas de réponse du Serveur");
 
         }else{ //Le serveur à répondu
-            Log.e("Retour Serveur",result);
-
-            try {
-                actiTest.writeToFile(result, actiTest.getApplicationContext());
-                actiTest.splitString();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            Log.e("Retour Serveur GPS","Le serveur répond");
         }
 
     }
