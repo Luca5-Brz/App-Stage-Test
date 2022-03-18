@@ -51,10 +51,10 @@ public class EnvoieGPSToServer extends AsyncTask<String, String, String>{
         super.onPostExecute(result);
 
         if (result==null){ //Le serveur ne répond pas
-            Log.e("Retour Serveur","Pas de réponse du Serveur");
+            Log.e("Retour Serveur GPS","Pas de réponse du Serveur");
 
         }else{ //Le serveur à répondu
-            Log.e("Retour Serveur GPS","Le serveur répond");
+            Log.e("Retour Serveur GPS","Le serveur répond"+result);
         }
 
     }

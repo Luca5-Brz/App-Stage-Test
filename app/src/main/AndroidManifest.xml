@@ -34,6 +34,8 @@
 
         <service android:name=".HUD" android:enabled="true" />
         <service android:name=".CheckRunningApp"/>
+        <service android:name=".PositionServiceJason"/>
+
 
         <activity
             android:name=".OptionActivity"

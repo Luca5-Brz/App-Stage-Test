@@ -17,9 +17,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -98,12 +95,6 @@ public class MainActivity extends AppCompatActivity {
 
     private long myDownloadReference;
     private boolean downloading = true;
-
-
-    LocationManager locationManager = null;
-    private String fournisseur;
-    GpsLocalisation gpsListener;
-    Location localisation;
 
 
     @Override
@@ -1139,57 +1130,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void initialiserLocalisation() {
+   private void initialiserLocalisation() {
+        Log.e("initialiserLocalisation","Entré");
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-
-            Log.e("Perms GPS","J'ai les perms");
-
-            if (locationManager == null) {
-            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            Criteria criteres = new Criteria();
-
-            // la précision  : (ACCURACY_FINE pour une haute précision ou ACCURACY_COARSE pour une moins bonne précision)
-            criteres.setAccuracy(Criteria.ACCURACY_FINE);
-
-            // l'altitude
-            criteres.setAltitudeRequired(true);
-
-            // la direction
-            criteres.setBearingRequired(true);
-
-            // la vitesse
-            criteres.setSpeedRequired(true);
-
-            // la consommation d'énergie demandée
-            criteres.setCostAllowed(true);
-            criteres.setPowerRequirement(Criteria.POWER_HIGH);
-
-            fournisseur = locationManager.getBestProvider(criteres, true);
-            Log.d("GPS", "fournisseur : " + fournisseur);
-            }
-
-
-            if (fournisseur != null) {
-                // dernière position connue
-                localisation = locationManager.getLastKnownLocation(fournisseur);
-                gpsListener = new GpsLocalisation();
-
-                if (localisation != null) {
-                    // on notifie la localisation
-                    gpsListener.onLocationChanged(localisation);
-
-                    urlSrv = BaseUrlSrv + "/LogPositionGPSLucas.php?gun=" + deviceId+"&coordLg="+localisation.getLongitude()+"&coordLt="+localisation.getLatitude();
-                    Log.e("GPS URL", urlSrv);
-
-                    EnvoieGPSToServer conn = new EnvoieGPSToServer();//this);
-                    conn.execute(urlSrv);
-
-                }
-            }
-        }else{
-            Log.e("Perms GPS","J'ai pas les perms");
-        }
+        Intent SendLocation = new Intent(MainActivity.this,PositionServiceJason.class);
+        SendLocation.putExtra("deviceId",deviceId);
+        startService(SendLocation);
     }
 
 }
