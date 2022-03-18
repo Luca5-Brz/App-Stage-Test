@@ -96,6 +96,8 @@ public class MainActivity extends AppCompatActivity {
     private long myDownloadReference;
     private boolean downloading = true;
 
+    ArrayList<Button> buttonList = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +110,10 @@ public class MainActivity extends AppCompatActivity {
            Log.e("Check suite logique", "Je vais demander les perms");
            askPermissions();
        }
+
+
+
+
 
     }
 
@@ -249,6 +255,18 @@ public class MainActivity extends AppCompatActivity {
         mButton12 = findViewById(R.id.main_button12);
 
 
+        buttonList.add(mButton1);
+        buttonList.add(mButton2);
+        buttonList.add(mButton3);
+        buttonList.add(mButton4);
+        buttonList.add(mButton5);
+        buttonList.add(mButton6);
+        buttonList.add(mButton7);
+        buttonList.add(mButton8);
+        buttonList.add(mButton9);
+        buttonList.add(mButton10);
+        buttonList.add(mButton11);
+        buttonList.add(mButton12);
     }
 
     //Verrouille l'orientaiton du launcher seulement
@@ -338,270 +356,30 @@ public class MainActivity extends AppCompatActivity {
         int numBtn = 0;
         int incrementNumBtn = 1;
 
-        mButton1.getBackground().setAlpha(255);
-        if (Build.VERSION.SDK_INT >= 21){
-            mButton1.setBackgroundTintList(null);
-        }
-        packageName = packagesNames[numBtn];
-        numBtn += incrementNumBtn;
-        if (!packageName.isEmpty()) {
-            try {
-                //on affiche l'icone de l'application sur le bouton
-                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
-                PackageManager packageManager = getApplicationContext().getPackageManager();
-                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
-                //on affiche le nom de l'application
-                mButton1.setText(appName);
-                mButton1.setBackground(appIcon);
-                mButton1.setVisibility(View.VISIBLE);
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-                mButton1.setVisibility(View.VISIBLE);
+        for (Button butt : buttonList) {
+
+            butt.getBackground().setAlpha(255);
+            /*if (Build.VERSION.SDK_INT >= 21){
+                butt.setBackgroundTintList(null);
+            }*/
+            packageName = packagesNames[numBtn];
+            numBtn += incrementNumBtn;
+            if (!packageName.isEmpty()) {
+                try {
+                    //on affiche l'icone de l'application sur le bouton
+                    Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
+                    PackageManager packageManager = getApplicationContext().getPackageManager();
+                    String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
+                    //on affiche le nom de l'application
+                    butt.setText(appName);
+                    butt.setBackground(appIcon);
+                    butt.setVisibility(View.VISIBLE);
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                    butt.setVisibility(View.VISIBLE);
+                }
             }
         }
-
-        mButton2.getBackground().setAlpha(255);
-        if (Build.VERSION.SDK_INT >= 21){
-            mButton2.setBackgroundTintList(null);
-        }
-        packageName = packagesNames[numBtn];
-        numBtn += incrementNumBtn;
-        if (!packageName.isEmpty()) {
-            try {
-                //on affiche l'icone de l'application sur le bouton
-                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
-                PackageManager packageManager = getApplicationContext().getPackageManager();
-                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
-                //on affiche le nom de l'application
-                mButton2.setText(appName);
-                mButton2.setBackground(appIcon);
-                mButton2.setVisibility(View.VISIBLE);
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-                mButton2.setVisibility(View.VISIBLE);
-            }
-        }
-
-        mButton3.getBackground().setAlpha(255);
-        if (Build.VERSION.SDK_INT >= 21){
-            mButton3.setBackgroundTintList(null);
-        }
-        packageName = packagesNames[numBtn];
-        numBtn += incrementNumBtn;
-        if (!packageName.isEmpty()) {
-            try {
-                //on affiche l'icone de l'application sur le bouton
-                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
-                PackageManager packageManager = getApplicationContext().getPackageManager();
-                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
-                //on affiche le nom de l'application
-                mButton3.setText(appName);
-                mButton3.setBackground(appIcon);
-                mButton3.setVisibility(View.VISIBLE);
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-                mButton3.setVisibility(View.VISIBLE);
-            }
-        }
-
-        mButton4.getBackground().setAlpha(255);
-        if (Build.VERSION.SDK_INT >= 21){
-            mButton4.setBackgroundTintList(null);
-        }
-        packageName = packagesNames[numBtn];
-        numBtn += incrementNumBtn;
-        if (!packageName.isEmpty()) {
-            try {
-                //on affiche l'icone de l'application sur le bouton
-                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
-                PackageManager packageManager = getApplicationContext().getPackageManager();
-                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
-                //on affiche le nom de l'application
-                mButton4.setText(appName);
-                mButton4.setBackground(appIcon);
-                mButton4.setVisibility(View.VISIBLE);
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-                mButton4.setVisibility(View.VISIBLE);
-            }
-        }
-
-        mButton5.getBackground().setAlpha(255);
-        if (Build.VERSION.SDK_INT >= 21){
-            mButton5.setBackgroundTintList(null);
-        }
-        packageName = packagesNames[numBtn];
-        numBtn += incrementNumBtn;
-        if (!packageName.isEmpty()) {
-            try {
-                //on affiche l'icone de l'application sur le bouton
-                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
-                PackageManager packageManager = getApplicationContext().getPackageManager();
-                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
-                //on affiche le nom de l'application
-                mButton5.setText(appName);
-                mButton5.setBackground(appIcon);
-                mButton5.setVisibility(View.VISIBLE);
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-                mButton5.setVisibility(View.VISIBLE);
-            }
-        }
-
-        mButton6.getBackground().setAlpha(255);
-        if (Build.VERSION.SDK_INT >= 21){
-            mButton6.setBackgroundTintList(null);
-        }
-        packageName = packagesNames[numBtn];
-        numBtn += incrementNumBtn;
-        if (!packageName.isEmpty()) {
-            try {
-                //on affiche l'icone de l'application sur le bouton
-                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
-                PackageManager packageManager = getApplicationContext().getPackageManager();
-                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
-                //on affiche le nom de l'application
-                mButton6.setText(appName);
-                mButton6.setBackground(appIcon);
-                mButton6.setVisibility(View.VISIBLE);
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-                mButton6.setVisibility(View.VISIBLE);
-            }
-        }
-
-        mButton7.getBackground().setAlpha(255);
-        if (Build.VERSION.SDK_INT >= 21){
-            mButton7.setBackgroundTintList(null);
-        }
-        packageName = packagesNames[numBtn];
-        numBtn += incrementNumBtn;
-        if (!packageName.isEmpty()) {
-            try {
-                //on affiche l'icone de l'application sur le bouton
-                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
-                PackageManager packageManager = getApplicationContext().getPackageManager();
-                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
-                //on affiche le nom de l'application
-                mButton7.setText(appName);
-                mButton7.setBackground(appIcon);
-                mButton7.setVisibility(View.VISIBLE);
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-                mButton7.setVisibility(View.VISIBLE);
-            }
-        }
-
-        mButton8.getBackground().setAlpha(255);
-        if (Build.VERSION.SDK_INT >= 21){
-            mButton8.setBackgroundTintList(null);
-        }
-        packageName = packagesNames[numBtn];
-        numBtn += incrementNumBtn;
-        if (!packageName.isEmpty()) {
-            try {
-                //on affiche l'icone de l'application sur le bouton
-                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
-                PackageManager packageManager = getApplicationContext().getPackageManager();
-                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
-                //on affiche le nom de l'application
-                mButton8.setText(appName);
-                mButton8.setBackground(appIcon);
-                mButton8.setVisibility(View.VISIBLE);
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-                mButton8.setVisibility(View.VISIBLE);
-            }
-        }
-
-        mButton9.getBackground().setAlpha(255);
-        if (Build.VERSION.SDK_INT >= 21){
-            mButton9.setBackgroundTintList(null);
-        }
-        packageName = packagesNames[numBtn];
-        numBtn += incrementNumBtn;
-        if (!packageName.isEmpty()) {
-            try {
-                //on affiche l'icone de l'application sur le bouton
-                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
-                PackageManager packageManager = getApplicationContext().getPackageManager();
-                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
-                //on affiche le nom de l'application
-                mButton9.setText(appName);
-                mButton9.setBackground(appIcon);
-                mButton9.setVisibility(View.VISIBLE);
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-                mButton9.setVisibility(View.VISIBLE);
-            }
-        }
-
-        mButton10.getBackground().setAlpha(255);
-        if (Build.VERSION.SDK_INT >= 21){
-            mButton10.setBackgroundTintList(null);
-        }
-        packageName = packagesNames[numBtn];
-        numBtn += incrementNumBtn;
-        if (!packageName.isEmpty()) {
-            try {
-                //on affiche l'icone de l'application sur le bouton
-                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
-                PackageManager packageManager = getApplicationContext().getPackageManager();
-                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
-                //on affiche le nom de l'application
-                mButton10.setText(appName);
-                mButton10.setBackground(appIcon);
-                mButton10.setVisibility(View.VISIBLE);
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-                mButton10.setVisibility(View.VISIBLE);
-            }
-        }
-
-        mButton11.getBackground().setAlpha(255);
-        if (Build.VERSION.SDK_INT >= 21){
-            mButton11.setBackgroundTintList(null);
-        }
-        packageName = packagesNames[numBtn];
-        numBtn += incrementNumBtn;
-        if (!packageName.isEmpty()) {
-            try {
-                //on affiche l'icone de l'application sur le bouton
-                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
-                PackageManager packageManager = getApplicationContext().getPackageManager();
-                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
-                //on affiche le nom de l'application
-                mButton11.setText(appName);
-                mButton11.setBackground(appIcon);
-                mButton11.setVisibility(View.VISIBLE);
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-                mButton11.setVisibility(View.VISIBLE);
-            }
-        }
-
-        mButton12.getBackground().setAlpha(255);
-        if (Build.VERSION.SDK_INT >= 21){
-            mButton12.setBackgroundTintList(null);
-        }
-        packageName = packagesNames[numBtn];
-        numBtn += incrementNumBtn;
-        if (!packageName.isEmpty()) {
-            try {
-                //on affiche l'icone de l'application sur le bouton
-                Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
-                PackageManager packageManager = getApplicationContext().getPackageManager();
-                String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
-                //on affiche le nom de l'application
-                mButton12.setText(appName);
-                mButton12.setBackground(appIcon);
-                mButton12.setVisibility(View.VISIBLE);
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-                mButton12.setVisibility(View.VISIBLE);
-            }
-        }
-
 
     }
 
