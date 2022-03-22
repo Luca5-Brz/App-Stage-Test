@@ -22,7 +22,6 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.provider.Settings;
 import android.text.InputType;
 import android.text.format.Formatter;
@@ -96,16 +95,16 @@ public class MainActivity extends AppCompatActivity {
     private long myDownloadReference;
     private boolean downloading = true;
 
-    ArrayList<Button> buttonList = new ArrayList<>();
+    ArrayList<Button> buttonList = new ArrayList<>(); //Liste les boutons des applications pour ne pas devoir recopeir 12 fois la même chose
 
-    int mBadPassword;
+    int mBadPassword; //Variable pour compter de mot de passe éronné écrit pour accéder aux Paramétres système
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mBadPassword = getSharedPreferences("basPassword", MODE_PRIVATE).getInt("badPassword",0);
+        mBadPassword = getSharedPreferences("badPassword", MODE_PRIVATE).getInt("badPassword",0);
         Log.e("BADPASSWORD",""+mBadPassword);
 
        if(Build.VERSION.SDK_INT < 23 ){
@@ -114,10 +113,6 @@ public class MainActivity extends AppCompatActivity {
            Log.e("Check suite logique", "Je vais demander les perms");
            askPermissions();
        }
-
-
-
-
 
     }
 
@@ -374,12 +369,14 @@ public class MainActivity extends AppCompatActivity {
                     Drawable appIcon = getPackageManager().getApplicationIcon(packageName);
                     PackageManager packageManager = getApplicationContext().getPackageManager();
                     String appName = (String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA));
+
                     //on affiche le nom de l'application
                     butt.setText(appName);
                     butt.setBackground(appIcon);
                     butt.setVisibility(View.VISIBLE);
+
                 } catch (PackageManager.NameNotFoundException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                     butt.setVisibility(View.VISIBLE);
                 }
             }
@@ -493,7 +490,7 @@ public class MainActivity extends AppCompatActivity {
                             if (mPasswdEditText.getText().toString().equals(mPassword)) {
 
                                 startActivity(new Intent(Settings.ACTION_SETTINGS));
-                                getSharedPreferences("basPassword", MODE_PRIVATE)
+                                getSharedPreferences("badPassword", MODE_PRIVATE)
                                         .edit()
                                         .putInt("badPassword", 0)
                                         .apply();
@@ -503,42 +500,28 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(MainActivity.this, "Mauvais Mot De Passe", Toast.LENGTH_SHORT).show();
                                 mBadPassword ++;
 
-                                getSharedPreferences("basPassword", MODE_PRIVATE)
+                                getSharedPreferences("badPassword", MODE_PRIVATE)
                                         .edit()
                                         .putInt("badPassword", mBadPassword)
                                         .apply();
+                            }
+                            if(mBadPassword == 3){
+                                Toast.makeText(this, "Mauvais MDP 3X", Toast.LENGTH_SHORT).show();
+
+                                AlertDialog dialogBad = new AlertDialog.Builder(MainActivity.this)
+                                        .setTitle("Mauvais Mot de Passe 3fois")
+                                        .setCancelable(false)
+                                        .create();
+                                dialogBad.show();
                             }
                         })
                         .setNegativeButton("Cancel", null)
                         .create();
                 dialog.show();
 
-                mBadPassword = getSharedPreferences("basPassword", MODE_PRIVATE).getInt("badPassword",0);
-
-                if(mBadPassword == 3){
-                    Toast.makeText(this, "Mauvais MDP 3X", Toast.LENGTH_SHORT).show();
-
-                    AlertDialog dialogBad = new AlertDialog.Builder(MainActivity.this)
-                            .setTitle("Mauvais Mot de Passe 3fois")
-                            .setPositiveButton(" ", null)
-                            .setCancelable(false)
-                            .create();
-                    dialogBad.show();
-                }
+                mBadPassword = getSharedPreferences("badPassword", MODE_PRIVATE).getInt("badPassword",0);
 
             }
-            if(mBadPassword == 3){
-                Toast.makeText(this, "Mauvais MDP 3X", Toast.LENGTH_SHORT).show();
-
-                AlertDialog dialogBad = new AlertDialog.Builder(MainActivity.this)
-                        .setTitle("Mauvais Mot de Passe 3fois")
-                        .setCancelable(false)
-                        .create();
-                dialogBad.show();
-            }
-
-
-
 
         });
 

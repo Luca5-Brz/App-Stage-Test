@@ -36,7 +36,6 @@ public class OptionActivity extends AppCompatActivity {
     private SeekBar mSeekbarVolume;
     private Button mButton4g;
     private Button mButtonWifi;
-    private Button mButtonClavier;
     private TextView mTextViewDate;
 
     private int mLuminAuto; //Indique le mode automatique de la luminosité
@@ -77,6 +76,8 @@ public class OptionActivity extends AppCompatActivity {
 
         setOnClick();
         setSeekBarVolume();
+
+        setTitle("Options");
 
     }
 
