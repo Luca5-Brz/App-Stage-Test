@@ -98,11 +98,15 @@ public class MainActivity extends AppCompatActivity {
 
     ArrayList<Button> buttonList = new ArrayList<>();
 
+    int mBadPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mBadPassword = getSharedPreferences("basPassword", MODE_PRIVATE).getInt("badPassword",0);
+        Log.e("BADPASSWORD",""+mBadPassword);
 
        if(Build.VERSION.SDK_INT < 23 ){
            startProcess();
@@ -385,7 +389,6 @@ public class MainActivity extends AppCompatActivity {
 
     //Paramètre l'action à effectuer lors d'un appui sur un bouton.
     public void setOnClick() {
-
         mButton1.setOnClickListener(view -> {
 
             testInstall(packagesNames[0]);
@@ -464,6 +467,8 @@ public class MainActivity extends AppCompatActivity {
         //Accés aux paramétres d'Android. Action bloquée par un mot de passe
         mButtonParams.setOnClickListener(view -> {
 
+
+
             //Création de l'EditText et attribution de certains attributs
             EditText mPasswdEditText = new EditText(MainActivity.this);
             mPasswdEditText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -478,23 +483,62 @@ public class MainActivity extends AppCompatActivity {
             mPassword = dateFormat.format(date);
 
 
-            //Affichage de l'AlertBox demandant le mot de passe
-            AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
-                    .setTitle("Mot de Passe :")
-                    .setView(mPasswdEditText)
-                    .setPositiveButton("OK", (dialog1, which) -> {
 
-                        if (mPasswdEditText.getText().toString().equals(mPassword)) {
+            if (mBadPassword < 3){
+                //Affichage de l'AlertBox demandant le mot de passe
+                AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Mot de Passe :")
+                        .setView(mPasswdEditText)
+                        .setPositiveButton("OK", (dialog1, which) -> {
+                            if (mPasswdEditText.getText().toString().equals(mPassword)) {
 
-                            new Handler().postDelayed(() -> startActivity(new Intent(Settings.ACTION_SETTINGS)), 0);
+                                startActivity(new Intent(Settings.ACTION_SETTINGS));
+                                getSharedPreferences("basPassword", MODE_PRIVATE)
+                                        .edit()
+                                        .putInt("badPassword", 0)
+                                        .apply();
 
-                        } else {
-                            Toast.makeText(MainActivity.this, "Mauvais Mot De Passe", Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .create();
-            dialog.show();
+
+                            } else {
+                                Toast.makeText(MainActivity.this, "Mauvais Mot De Passe", Toast.LENGTH_SHORT).show();
+                                mBadPassword ++;
+
+                                getSharedPreferences("basPassword", MODE_PRIVATE)
+                                        .edit()
+                                        .putInt("badPassword", mBadPassword)
+                                        .apply();
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .create();
+                dialog.show();
+
+                mBadPassword = getSharedPreferences("basPassword", MODE_PRIVATE).getInt("badPassword",0);
+
+                if(mBadPassword == 3){
+                    Toast.makeText(this, "Mauvais MDP 3X", Toast.LENGTH_SHORT).show();
+
+                    AlertDialog dialogBad = new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("Mauvais Mot de Passe 3fois")
+                            .setPositiveButton(" ", null)
+                            .setCancelable(false)
+                            .create();
+                    dialogBad.show();
+                }
+
+            }
+            if(mBadPassword == 3){
+                Toast.makeText(this, "Mauvais MDP 3X", Toast.LENGTH_SHORT).show();
+
+                AlertDialog dialogBad = new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Mauvais Mot de Passe 3fois")
+                        .setCancelable(false)
+                        .create();
+                dialogBad.show();
+            }
+
+
+
 
         });
 
