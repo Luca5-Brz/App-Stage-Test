@@ -22,6 +22,7 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.Settings;
 import android.text.InputType;
 import android.text.format.Formatter;
@@ -98,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Button> buttonList = new ArrayList<>(); //Liste les boutons des applications pour ne pas devoir recopeir 12 fois la même chose
 
     int mBadPassword; //Variable pour compter de mot de passe éronné écrit pour accéder aux Paramétres système
+    boolean mBlockPassword = false; //Bool pour checker si on dois blocker l'accés au MDP ( false = on ouvre, true = on bloque)
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -358,9 +360,6 @@ public class MainActivity extends AppCompatActivity {
         for (Button butt : buttonList) {
 
             butt.getBackground().setAlpha(255);
-            /*if (Build.VERSION.SDK_INT >= 21){
-                butt.setBackgroundTintList(null);
-            }*/
             packageName = packagesNames[numBtn];
             numBtn += incrementNumBtn;
             if (!packageName.isEmpty()) {
@@ -386,66 +385,18 @@ public class MainActivity extends AppCompatActivity {
 
     //Paramètre l'action à effectuer lors d'un appui sur un bouton.
     public void setOnClick() {
-        mButton1.setOnClickListener(view -> {
-
-            testInstall(packagesNames[0]);
-
-        });
-        mButton2.setOnClickListener(view -> {
-
-            testInstall(packagesNames[1]);
-
-        });
-        mButton3.setOnClickListener(view -> {
-
-            testInstall(packagesNames[2]);
-
-        });
-        mButton4.setOnClickListener(view -> {
-
-            testInstall(packagesNames[3]);
-
-        });
-        mButton5.setOnClickListener(view -> {
-
-            testInstall(packagesNames[4]);
-
-        });
-        mButton6.setOnClickListener(view -> {
-
-            testInstall(packagesNames[5]);
-
-        });
-        mButton7.setOnClickListener(view -> {
-
-            testInstall(packagesNames[6]);
-
-        });
-        mButton8.setOnClickListener(view -> {
-
-            testInstall(packagesNames[7]);
-
-        });
-        mButton9.setOnClickListener(view -> {
-
-            testInstall(packagesNames[8]);
-
-        });
-        mButton10.setOnClickListener(view -> {
-
-            testInstall(packagesNames[9]);
-
-        });
-        mButton11.setOnClickListener(view -> {
-
-            testInstall(packagesNames[10]);
-
-        });
-        mButton12.setOnClickListener(view -> {
-
-            testInstall(packagesNames[11]);
-
-        });
+        mButton1.setOnClickListener(view -> testInstall(packagesNames[0]));
+        mButton2.setOnClickListener(view -> testInstall(packagesNames[1]));
+        mButton3.setOnClickListener(view -> testInstall(packagesNames[2]));
+        mButton4.setOnClickListener(view -> testInstall(packagesNames[3]));
+        mButton5.setOnClickListener(view -> testInstall(packagesNames[4]));
+        mButton6.setOnClickListener(view -> testInstall(packagesNames[5]));
+        mButton7.setOnClickListener(view -> testInstall(packagesNames[6]));
+        mButton8.setOnClickListener(view -> testInstall(packagesNames[7]));
+        mButton9.setOnClickListener(view -> testInstall(packagesNames[8]));
+        mButton10.setOnClickListener(view -> testInstall(packagesNames[9]));
+        mButton11.setOnClickListener(view -> testInstall(packagesNames[10]));
+        mButton12.setOnClickListener(view -> testInstall(packagesNames[11]));
 
         /* Lors ce qu'on appuie sur le bouton "Options"
             on ouvre la page avec les options utilisateurs*/
@@ -464,8 +415,6 @@ public class MainActivity extends AppCompatActivity {
         //Accés aux paramétres d'Android. Action bloquée par un mot de passe
         mButtonParams.setOnClickListener(view -> {
 
-
-
             //Création de l'EditText et attribution de certains attributs
             EditText mPasswdEditText = new EditText(MainActivity.this);
             mPasswdEditText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -479,9 +428,8 @@ public class MainActivity extends AppCompatActivity {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyMMdd");
             mPassword = dateFormat.format(date);
 
+            if (mBadPassword < 3 && !mBlockPassword){
 
-
-            if (mBadPassword < 3){
                 //Affichage de l'AlertBox demandant le mot de passe
                 AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
                         .setTitle("Mot de Passe :")
@@ -490,6 +438,7 @@ public class MainActivity extends AppCompatActivity {
                             if (mPasswdEditText.getText().toString().equals(mPassword)) {
 
                                 startActivity(new Intent(Settings.ACTION_SETTINGS));
+
                                 getSharedPreferences("badPassword", MODE_PRIVATE)
                                         .edit()
                                         .putInt("badPassword", 0)
@@ -507,13 +456,18 @@ public class MainActivity extends AppCompatActivity {
                             }
                             if(mBadPassword == 3){
                                 Toast.makeText(this, "Mauvais MDP 3X", Toast.LENGTH_SHORT).show();
+                                mBlockPassword=true;
+                            }
 
+                            if(mBlockPassword){
                                 AlertDialog dialogBad = new AlertDialog.Builder(MainActivity.this)
                                         .setTitle("Mauvais Mot de Passe 3fois")
+                                        .setPositiveButton("OK",null)
                                         .setCancelable(false)
                                         .create();
                                 dialogBad.show();
                             }
+
                         })
                         .setNegativeButton("Cancel", null)
                         .create();
@@ -522,6 +476,35 @@ public class MainActivity extends AppCompatActivity {
                 mBadPassword = getSharedPreferences("badPassword", MODE_PRIVATE).getInt("badPassword",0);
 
             }
+
+            if(mBlockPassword){
+
+                AlertDialog dialogBlockPwd = new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Veuillez attendre la fin du décompte")
+                        .setPositiveButton("OK",null)
+                        .setCancelable(false)
+                        .create();
+                dialogBlockPwd.show();
+
+                long delay = 1000*10;
+
+                new Handler().postDelayed(() -> {
+
+                    dialogBlockPwd.dismiss();
+
+
+                    //Toast.makeText(this, "Veuillez attendre encore", Toast.LENGTH_SHORT).show();
+                    mBlockPassword = false;
+
+                    mBadPassword=0;
+                    getSharedPreferences("badPassword", MODE_PRIVATE)
+                            .edit()
+                            .putInt("badPassword", mBadPassword)
+                            .apply();
+
+                },delay); // 1 min
+            }
+
 
         });
 
