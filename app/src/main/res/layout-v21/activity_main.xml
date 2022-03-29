@@ -38,7 +38,7 @@
                 android:gravity="bottom|center_horizontal"
                 android:maxWidth="79dp"
                 android:text=""
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textStyle="bold"
                 android:visibility="invisible"
                 app:backgroundTint="@null"
@@ -48,7 +48,7 @@
                 />
             <Button
                 android:id="@+id/main_button2"
-                android:layout_width="79dp"
+               android:layout_width="79dp"
                 android:layout_height="89dp"
                 android:layout_gravity="center"
                 android:background="@drawable/download"
@@ -56,7 +56,7 @@
                 android:gravity="bottom|center_horizontal"
                 android:maxWidth="79dp"
                 android:text=""
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textStyle="bold"
                 android:visibility="invisible"
                 app:backgroundTint="@null"
@@ -66,7 +66,7 @@
                 />
             <Button
                 android:id="@+id/main_button3"
-                android:layout_width="79dp"
+               android:layout_width="79dp"
                 android:layout_height="89dp"
                 android:layout_gravity="center"
                 android:background="@drawable/download"
@@ -74,7 +74,7 @@
                 android:gravity="bottom|center_horizontal"
                 android:maxWidth="79dp"
                 android:text=""
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textStyle="bold"
                 android:visibility="invisible"
                 app:backgroundTint="@null"
@@ -84,7 +84,7 @@
                 />
             <Button
                 android:id="@+id/main_button4"
-                android:layout_width="79dp"
+               android:layout_width="79dp"
                 android:layout_height="89dp"
                 android:layout_gravity="center"
                 android:background="@drawable/download"
@@ -92,7 +92,7 @@
                 android:gravity="bottom|center_horizontal"
                 android:maxWidth="79dp"
                 android:text=""
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textStyle="bold"
                 android:visibility="invisible"
                 app:backgroundTint="@null"
@@ -112,7 +112,7 @@
 
             <Button
                 android:id="@+id/main_button5"
-                android:layout_width="79dp"
+               android:layout_width="79dp"
                 android:layout_height="89dp"
                 android:layout_gravity="center"
                 android:background="@drawable/download"
@@ -120,7 +120,7 @@
                 android:gravity="bottom|center_horizontal"
                 android:maxWidth="79dp"
                 android:text=""
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textStyle="bold"
                 android:visibility="invisible"
                 app:backgroundTint="@null"
@@ -130,7 +130,7 @@
                 />
             <Button
                 android:id="@+id/main_button6"
-                android:layout_width="79dp"
+               android:layout_width="79dp"
                 android:layout_height="89dp"
                 android:layout_gravity="center"
                 android:background="@drawable/download"
@@ -138,7 +138,7 @@
                 android:gravity="bottom|center_horizontal"
                 android:maxWidth="79dp"
                 android:text=""
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textStyle="bold"
                 android:visibility="invisible"
                 app:backgroundTint="@null"
@@ -148,7 +148,7 @@
                 />
             <Button
                 android:id="@+id/main_button7"
-                android:layout_width="79dp"
+               android:layout_width="79dp"
                 android:layout_height="89dp"
                 android:layout_gravity="center"
                 android:background="@drawable/download"
@@ -156,7 +156,7 @@
                 android:gravity="bottom|center_horizontal"
                 android:maxWidth="79dp"
                 android:text=""
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textStyle="bold"
                 android:visibility="invisible"
                 app:backgroundTint="@null"
@@ -166,7 +166,7 @@
                 />
             <Button
                 android:id="@+id/main_button8"
-                android:layout_width="79dp"
+               android:layout_width="79dp"
                 android:layout_height="89dp"
                 android:layout_gravity="center"
                 android:background="@drawable/download"
@@ -174,7 +174,7 @@
                 android:gravity="bottom|center_horizontal"
                 android:maxWidth="79dp"
                 android:text=""
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textStyle="bold"
                 android:visibility="invisible"
                 app:backgroundTint="@null"
@@ -194,7 +194,7 @@
 
             <Button
                 android:id="@+id/main_button9"
-                android:layout_width="79dp"
+               android:layout_width="79dp"
                 android:layout_height="89dp"
                 android:layout_gravity="center"
                 android:background="@drawable/download"
@@ -202,7 +202,7 @@
                 android:gravity="bottom|center_horizontal"
                 android:maxWidth="79dp"
                 android:text=""
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textStyle="bold"
                 android:visibility="invisible"
                 app:backgroundTint="@null"
@@ -212,7 +212,7 @@
                 />
             <Button
                 android:id="@+id/main_button10"
-                android:layout_width="79dp"
+               android:layout_width="79dp"
                 android:layout_height="89dp"
                 android:layout_gravity="center"
                 android:background="@drawable/download"
@@ -220,7 +220,7 @@
                 android:gravity="bottom|center_horizontal"
                 android:maxWidth="79dp"
                 android:text=""
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textStyle="bold"
                 android:visibility="invisible"
                 app:backgroundTint="@null"
@@ -230,7 +230,7 @@
                 />
             <Button
                 android:id="@+id/main_button11"
-                android:layout_width="79dp"
+               android:layout_width="79dp"
                 android:layout_height="89dp"
                 android:layout_gravity="center"
                 android:background="@drawable/download"
@@ -238,7 +238,7 @@
                 android:gravity="bottom|center_horizontal"
                 android:maxWidth="79dp"
                 android:text=""
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textStyle="bold"
                 android:visibility="invisible"
                 app:backgroundTint="@null"
@@ -248,7 +248,7 @@
                 />
             <Button
                 android:id="@+id/main_button12"
-                android:layout_width="79dp"
+               android:layout_width="79dp"
                 android:layout_height="89dp"
                 android:layout_gravity="center"
                 android:background="@drawable/download"
@@ -256,7 +256,7 @@
                 android:gravity="bottom|center_horizontal"
                 android:maxWidth="79dp"
                 android:text=""
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textStyle="bold"
                 android:visibility="invisible"
                 app:backgroundTint="@null"

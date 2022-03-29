@@ -100,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
 
     int mBadPassword; //Variable pour compter de mot de passe éronné écrit pour accéder aux Paramétres système
     boolean mBlockPassword = false; //Bool pour checker si on dois blocker l'accés au MDP ( false = on ouvre, true = on bloque)
+    int multiplyDelay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,6 +149,12 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT <26){ //API 26 est Android 8
             startService(new Intent(MainActivity.this, HUD.class));
         }
+
+        Intent getMessageIntent= new Intent(MainActivity.this,GetMessageService.class);
+        getMessageIntent.putExtra("BaseUrlSrv",BaseUrlSrv);
+        getMessageIntent.putExtra("deviceId",deviceId);
+        startService(getMessageIntent);
+
     }
 
     @Override
@@ -197,8 +204,6 @@ public class MainActivity extends AppCompatActivity {
 
         //Récupération adresse IP
         if (Build.VERSION.SDK_INT >= 17/*Build.VERSION_CODES.M*/) {
-            //Demande des permissions
-            //askPermissions();
 
             //On va stocker la première addresse ip du device dans les SharedPrefereces afin d'avoir toujours le même Title
             ipAddr = getSharedPreferences("Adresse IP", MODE_PRIVATE).getString("Addresse Ip", null);
@@ -228,10 +233,7 @@ public class MainActivity extends AppCompatActivity {
             //On récupére l'addresse MAC pour en faire un ID
             deviceId = getMacAddr();
             Log.e("ID", deviceId);
-
         }
-
-
     }
 
     public void instanciationXMLComponents() {
@@ -360,6 +362,9 @@ public class MainActivity extends AppCompatActivity {
         for (Button butt : buttonList) {
 
             butt.getBackground().setAlpha(255);
+            if (Build.VERSION.SDK_INT >= 21){
+                butt.setBackgroundTintList(null);
+            }
             packageName = packagesNames[numBtn];
             numBtn += incrementNumBtn;
             if (!packageName.isEmpty()) {
@@ -428,6 +433,14 @@ public class MainActivity extends AppCompatActivity {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyMMdd");
             mPassword = dateFormat.format(date);
 
+
+            AlertDialog dialogBlockPwd = new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Veuillez attendre la fin du décompte ")
+                    .setPositiveButton("OK",null)
+                    .setCancelable(false)
+                    .create();
+
+
             if (mBadPassword < 3 && !mBlockPassword){
 
                 //Affichage de l'AlertBox demandant le mot de passe
@@ -444,6 +457,15 @@ public class MainActivity extends AppCompatActivity {
                                         .putInt("badPassword", 0)
                                         .apply();
 
+                                getSharedPreferences("multiplyDelay",MODE_PRIVATE)
+                                        .edit()
+                                        .putInt("multiplyDelay",1)
+                                        .apply();
+
+                                urlSrv = BaseUrlSrv+"/LogPasswordParams.php?gun="+deviceId+"&numGun="+deviceTitle+"&status=succeed";
+                                LogPasswordParams conn = new LogPasswordParams();
+                                conn.execute(urlSrv);
+
 
                             } else {
                                 Toast.makeText(MainActivity.this, "Mauvais Mot De Passe", Toast.LENGTH_SHORT).show();
@@ -454,18 +476,51 @@ public class MainActivity extends AppCompatActivity {
                                         .putInt("badPassword", mBadPassword)
                                         .apply();
                             }
+
                             if(mBadPassword == 3){
-                                Toast.makeText(this, "Mauvais MDP 3X", Toast.LENGTH_SHORT).show();
                                 mBlockPassword=true;
                             }
 
                             if(mBlockPassword){
                                 AlertDialog dialogBad = new AlertDialog.Builder(MainActivity.this)
-                                        .setTitle("Mauvais Mot de Passe 3fois")
+                                        .setTitle("Vous avez entré trop de mot de passe erronés")
                                         .setPositiveButton("OK",null)
                                         .setCancelable(false)
                                         .create();
                                 dialogBad.show();
+
+
+
+                                long delay = 1000*10;
+
+                                multiplyDelay = getSharedPreferences("multiplyDelay",MODE_PRIVATE).getInt("multiplyDelay",1);
+
+                                new Handler().postDelayed(() -> {
+
+                                    dialogBlockPwd.dismiss();
+
+                                    mBlockPassword = false;
+
+                                    mBadPassword=0;
+                                    getSharedPreferences("badPassword", MODE_PRIVATE)
+                                            .edit()
+                                            .putInt("badPassword", mBadPassword)
+                                            .apply();
+
+                                    multiplyDelay ++;
+                                    getSharedPreferences("multiplyDelay",MODE_PRIVATE)
+                                            .edit()
+                                            .putInt("multiplyDelay",multiplyDelay)
+                                            .apply();
+
+                                    urlSrv = BaseUrlSrv+"/LogPasswordParams.php?gun="+deviceId+"&numGun="+deviceTitle+"&status=failed";
+                                    LogPasswordParams conn = new LogPasswordParams();
+                                    conn.execute(urlSrv);
+
+
+                                },delay*multiplyDelay);
+
+
                             }
 
                         })
@@ -478,31 +533,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if(mBlockPassword){
-
-                AlertDialog dialogBlockPwd = new AlertDialog.Builder(MainActivity.this)
-                        .setTitle("Veuillez attendre la fin du décompte")
-                        .setPositiveButton("OK",null)
-                        .setCancelable(false)
-                        .create();
                 dialogBlockPwd.show();
-
-                long delay = 1000*10;
-
-                new Handler().postDelayed(() -> {
-
-                    dialogBlockPwd.dismiss();
-
-
-                    //Toast.makeText(this, "Veuillez attendre encore", Toast.LENGTH_SHORT).show();
-                    mBlockPassword = false;
-
-                    mBadPassword=0;
-                    getSharedPreferences("badPassword", MODE_PRIVATE)
-                            .edit()
-                            .putInt("badPassword", mBadPassword)
-                            .apply();
-
-                },delay); // 1 min
             }
 
 
@@ -923,6 +954,7 @@ public class MainActivity extends AppCompatActivity {
 
         Intent SendLocation = new Intent(MainActivity.this,PositionServiceJason.class);
         SendLocation.putExtra("deviceId",deviceId);
+        SendLocation.putExtra("BaseUrlSrv",BaseUrlSrv);
         startService(SendLocation);
     }
 
