@@ -1,6 +1,5 @@
-package com.example.test_gun;
+package com.example.launcher_lucas;
 
-import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -12,16 +11,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class GestionDownload extends AsyncTask<String, String, String>{
 
-    public String apkName;
-
-    @SuppressLint("StaticFieldLeak")
-    MainActivity actiTest;
-
-    public GestionDownload(MainActivity actiTest) {
-        this.actiTest = actiTest;
-    }
+public class LogPasswordParams extends AsyncTask<String, String, String>{
 
     protected String doInBackground(String... params) {
 
@@ -45,7 +36,6 @@ public class GestionDownload extends AsyncTask<String, String, String>{
             }
             buffReader.close();
             inStream.close();
-
             return stringBld.toString();
 
         } catch (MalformedURLException e) {
@@ -60,22 +50,18 @@ public class GestionDownload extends AsyncTask<String, String, String>{
     protected void onPostExecute(String result) {
         super.onPostExecute(result);
 
-        //result = ce que le serveur renvoie (les noms des packages)
-        apkName = result;
-
         if (result==null){ //Le serveur ne répond pas
-            Log.e("Retour Serveur","Pas de réponse du Serveur");
+            Log.e("Retour Serveur Log Pwd","Pas de réponse du Serveur");
 
         }else{ //Le serveur à répondu
-            Log.e("Retour Serveur Download",result);
-
-            try {
-                Log.e("DOWNLOAD","Je télécharge l'APK");
-                actiTest.download(apkName);
-            } catch (Exception e) {
-                Log.e("DOWNLOAD","J'ai foiré");
-                e.printStackTrace();
-            }
+            Log.e("Retour Serveur Log Pwd","Le serveur répond"+result);
         }
+
     }
+
+
+
+
+
+
 }

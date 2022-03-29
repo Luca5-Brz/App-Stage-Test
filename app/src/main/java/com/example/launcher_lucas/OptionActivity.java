@@ -1,4 +1,4 @@
-package com.example.test_gun;
+package com.example.launcher_lucas;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

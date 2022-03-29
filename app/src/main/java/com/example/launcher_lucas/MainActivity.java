@@ -1,4 +1,4 @@
-package com.example.test_gun;
+package com.example.launcher_lucas;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -541,12 +541,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Actualise l'affichage du Launcher
         mButtonMAJ.setOnClickListener(view -> {
-            /*Intent intent = new Intent(MainActivity.this, MainActivity.class);
-            Bundle b = new Bundle();
-            b.putString("packageName","com.example.info_jvs.launcher");
-            b.putString("apkName","launcher.apk");
-            intent.putExtras(b); //Put your id to your next Intent
-            startActivity(intent);*/
+            testInstall("com.example.updatelauncher");
         });
 
     }
@@ -868,18 +863,6 @@ public class MainActivity extends AppCompatActivity {
                     android.os.Handler handler = new android.os.Handler();
                     handler.postDelayed(new Runnable() {
                         public void run() {
-                            //executer le fichier
-                            //String dir="";
-                            //int currentapiVersion = android.os.Build.VERSION.SDK_INT;
-                            //if (currentapiVersion <= android.os.Build.VERSION_CODES.LOLLIPOP_MR1){
-                            //    // Do something for JellyBean and above versions
-                            //    dir = Environment.getExternalStorageDirectory().getPath()+"/Android/data/"+getPackageName()+"/files/Download";
-
-                            //}
-                            //else{
-                            //    // do something for phones running an SDK above JellyBean
-                            //    dir = Environment.getExternalStorageDirectory() + "/android/data/"+getPackageName()+"/files/Download/";
-                            //}
                             String dir = Environment.getExternalStorageDirectory() + "/android/data/" + getPackageName() + "/files/download/";
 
                             Log.e("dir", "data uri: " + dir + apkName);

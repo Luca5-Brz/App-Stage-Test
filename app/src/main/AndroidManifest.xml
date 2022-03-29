@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.test_gun">
+    package="com.example.launcher_lucas">
     <!-- Demande des Autorisations -->
     <uses-permission android:name="android.permission.BROADCAST_CLOSE_SYSTEM_DIALOGS" />
     <uses-permission android:name="android.permission.INTERNET" /><!-- Protection level : normal -->
@@ -32,17 +32,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TestGun">
 
-        <service android:name=".HUD" android:enabled="true" />
-        <service android:name=".CheckRunningApp"/>
-        <service android:name=".PositionServiceJason"/>
-        <service android:name=".GetMessageService"/>
+        <service android:name="com.example.launcher_lucas.HUD" android:enabled="true" />
+        <service android:name="com.example.launcher_lucas.CheckRunningApp"/>
+        <service android:name="com.example.launcher_lucas.PositionServiceJason"/>
+        <service android:name="com.example.launcher_lucas.GetMessageService"/>
 
 
         <activity
-            android:name=".OptionActivity"
+            android:name="com.example.launcher_lucas.OptionActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name="com.example.launcher_lucas.MainActivity"
             android:exported="true"
             >
             <intent-filter>
