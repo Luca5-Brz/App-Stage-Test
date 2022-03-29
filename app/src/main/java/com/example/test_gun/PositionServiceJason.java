@@ -26,7 +26,7 @@ public class PositionServiceJason  extends Service {
     private static final float LOCATION_DISTANCE = 160935f; // 100 miles
     int count=0;
 
-    public String BaseUrlSrv = "https://launcher.carrieresduhainaut.com/launcherdev/test_gun";
+    public String BaseUrlSrv;
     public String urlSrv;
 
     public String deviceId;
@@ -52,43 +52,7 @@ public class PositionServiceJason  extends Service {
 
             EnvoieGPSToServer conn = new EnvoieGPSToServer();
             conn.execute(urlSrv);
-            /*class SendPostReqAsyncTask extends AsyncTask<String, Void, String>
-            {
 
-                @Override
-                protected String doInBackground(String... params)
-                {
-                    String paramdeviceID = params[0];
-                    String paramLongitude = String.valueOf(params[2]);
-                    String paramLatitude = String.valueOf(params[1]);
-
-
-                    HttpClient httpClient = new DefaultHttpClient();
-                    HttpPost httpPost = new HttpPost(
-                            "http://212.166.21.236:8080/SaveGpsLocation.php?deviceID="+ paramdeviceID +"&longitude="+paramLongitude +"&latitude="+ paramLatitude);
-
-                    List<NameValuePair> nameValuePairList = new ArrayList<>(3);
-                    nameValuePairList.add(new BasicNameValuePair("deviceID", paramdeviceID));
-                    nameValuePairList.add(new BasicNameValuePair("longitude", paramLongitude));
-                    nameValuePairList.add(new BasicNameValuePair("latitude", paramLatitude));
-                    try {
-                        httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairList));
-                        HttpResponse response = httpClient.execute(httpPost);
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    return null;
-                }
-
-                @Override
-                protected void onPostExecute(String result) {
-                    super.onPostExecute(result);
-                }
-            }
-
-            SendPostReqAsyncTask sendPostReqAsyncTask = new SendPostReqAsyncTask();
-            sendPostReqAsyncTask.execute(deviceID, String.valueOf(longitude),String.valueOf(latitude));*/
         }
 
         @Override
@@ -155,9 +119,10 @@ public class PositionServiceJason  extends Service {
     {
         Log.e(TAG, "onStartCommand");
         super.onStartCommand(intent, flags, startId);
-        Bundle extras = intent.getExtras();
 
+        Bundle extras = intent.getExtras();
         deviceId = extras.get("deviceId").toString();
+        BaseUrlSrv = extras.get("BaseUrlSrv").toString();
 
         return START_STICKY;
     }
