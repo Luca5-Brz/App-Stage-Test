@@ -12,20 +12,19 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-
-public class ConnectionToServer extends AsyncTask<String, String, String>{
-
-    public String packagesNames;
+public class SendPostReqAsyncTask extends AsyncTask<String, Void, String> {
 
     @SuppressLint("StaticFieldLeak")
-    MainActivity actiTest;
+    GetMessageService actiTest;
 
-    public ConnectionToServer(MainActivity actiTest) {
+    public SendPostReqAsyncTask(GetMessageService actiTest) {
         this.actiTest = actiTest;
     }
 
-    protected String doInBackground(String... params) {
-
+    @Override
+    protected String doInBackground(String... params)
+    {
+        Log.e("Url Message",""+params[0]);
         BufferedReader buffReader;
         HttpURLConnection connexion;
 
@@ -56,33 +55,19 @@ public class ConnectionToServer extends AsyncTask<String, String, String>{
         return null;
     }
 
-    @SuppressLint("LongLogTag")
     @Override
     protected void onPostExecute(String result) {
         super.onPostExecute(result);
 
-        //result = ce que le serveur renvoie (les noms des packages)
-        packagesNames = result;
+        if (result !=null)
+        {
+            Log.e("Return Message",result);
+            actiTest.sendLog(result);
 
-        if (result==null){ //Le serveur ne répond pas
-            Log.e("Retour Serveur Applications","Pas de réponse du Serveur");
 
-        }else{ //Le serveur à répondu
-            Log.e("Retour Serveur Apps Boutons",result);
 
-            try {
-                actiTest.writeToFile(result, actiTest.getApplicationContext());
-                actiTest.splitString();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
 
+
     }
-
-
-
-
-
-
 }

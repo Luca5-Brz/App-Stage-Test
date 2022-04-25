@@ -9,4 +9,6 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="red">#FFFF0000</color>
+    <color name="bleu_cdh">#415a69</color>
+    <color name="bleu_cdh_fonce">#303f4d</color>
 </resources>

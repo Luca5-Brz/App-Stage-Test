@@ -2,6 +2,7 @@ package com.example.launcher_lucas;
 
 import android.annotation.SuppressLint;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -56,8 +57,13 @@ public class CheckVersionOnServer extends AsyncTask<String, String, String>{
     protected void onPostExecute(String result) {
         super.onPostExecute(result);
 
-        //actiTest.resultRequestVersion = result;
-        actiTest.checkVersion(result);
+        if (result==null){ //Le serveur ne répond pas
+            Log.e("Retour Serveur Version","Pas de réponse du Serveur");
+
+        }else{ //Le serveur à répondu
+            Log.e("Retour Serveur Version","Le serveur répond"+result);
+            actiTest.checkVersion(result);
+        }
 
     }
 }

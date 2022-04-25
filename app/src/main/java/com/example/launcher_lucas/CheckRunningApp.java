@@ -34,7 +34,7 @@ public class CheckRunningApp extends Service {
     public void onCreate() {
         super.onCreate();
 
-        //Log.e("CHECK APP","Check running app lancé");
+        Log.e("CHECK APP","Check running app lancé");
         splitIt();
 
 // This schedule a runnable task every 1 second
@@ -61,8 +61,9 @@ public class CheckRunningApp extends Service {
             boolean isallowed=isAllowed(output2[1]);
 
             if ("com.computerland.cdh.mobile".equals(output2[1])) {}
-            else if ("com.example.test_gun".equals(output2[1])) { }
-            else if ("com.android.settings".equals(output2[1])) { }
+            else if ("com.example.launcher_lucas".equals(output2[1])) { }
+            else if ("com.example.updatelauncher".equals(output2[1])) { }
+            //else if ("com.android.settings".equals(output2[1])) { }
             else if ("com.teamviewer.quicksupport.market".equals(output2[1])){}
             else if ("com.android.packageinstaller".equals(output2[1])){}
             else if ("com.google.android.location".equals(output2[1])){}
@@ -70,9 +71,10 @@ public class CheckRunningApp extends Service {
             else
             {
                 Log.e("TAG", output2[1] + "--> Refusé !");
-                Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.example.test_gun");
+                Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.example.launcher_lucas");
                 startActivity(launchIntent);
             }
+
         }, 0, 1, TimeUnit.SECONDS);
         //Log.e("TESTTTTT","Juste apres le schedule machin");
     }
@@ -133,7 +135,7 @@ public class CheckRunningApp extends Service {
         //Log.e("CHECK RUNNING","isAllowed lancé");
         //parcourir l'arraylist à la recherche d'occurence et retourne vrai ou faux
 
-        //utilisé par le service de vérification des taches en cours (checkRunningActivity class)
+        //utilisé par le service de vérification des taches en cours (checkRunningApp class)
         boolean Occurence=false;
         for (int i = 0 ; i < partsOfJsonString.length ; i++) {
             String appInArray = partsOfJsonString[i];

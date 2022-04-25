@@ -94,28 +94,25 @@ public class OptionActivity extends AppCompatActivity {
 
     public void setOnClick(){
         
-        mSwitchLuminosite.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+        mSwitchLuminosite.setOnCheckedChangeListener((compoundButton, isChecked) -> {
 
-                // Si le bouton est coché, on active la luminosité auto
-                //setLuminAuto();
-                mLuminAuto = getLuminAuto();
-                if(mLuminAuto==0){
+            // Si le bouton est coché, on active la luminosité auto
+            //setLuminAuto();
+            mLuminAuto = getLuminAuto();
+            if(mLuminAuto==0){
 
-                    android.provider.Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE,
-                            Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC);
-                    Toast.makeText(OptionActivity.this, "Luminosité Automatique", Toast.LENGTH_SHORT).show();
+                Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE,
+                        Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC);
+                Toast.makeText(OptionActivity.this, "Luminosité Automatique", Toast.LENGTH_SHORT).show();
 
-                }//Si pas, on la désactive
-                else {
-                    android.provider.Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE,
-                            Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
-                    Toast.makeText(OptionActivity.this, "Luminosité Manuelle", Toast.LENGTH_SHORT).show();
-
-                }
+            }//Si pas, on la désactive
+            else {
+                Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE,
+                        Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+                Toast.makeText(OptionActivity.this, "Luminosité Manuelle", Toast.LENGTH_SHORT).show();
 
             }
+
         });
 
         mSwitchRotation.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

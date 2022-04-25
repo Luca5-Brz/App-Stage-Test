@@ -102,37 +102,57 @@ public class MainActivity extends AppCompatActivity {
     boolean mBlockPassword = false; //Bool pour checker si on dois blocker l'accés au MDP ( false = on ouvre, true = on bloque)
     int multiplyDelay;
 
+    Intent checkRunningApp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        instanciationXMLComponents();
+        checkRunningApp = new Intent(MainActivity.this,CheckRunningApp.class);
 
         mBadPassword = getSharedPreferences("badPassword", MODE_PRIVATE).getInt("badPassword",0);
-        Log.e("BADPASSWORD",""+mBadPassword);
+        //Log.e("BADPASSWORD",""+mBadPassword);
 
        if(Build.VERSION.SDK_INT < 23 ){
            startProcess();
        }else {
-           Log.e("Check suite logique", "Je vais demander les perms");
+           //Log.e("Check suite logique", "Je vais demander les perms");
            askPermissions();
        }
 
+        ActivityManager am = (ActivityManager) getSystemService(Activity.ACTIVITY_SERVICE);
+        am.killBackgroundProcesses("com.example.updatelauncher");
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //Log.e("OnResume","");
+
+        ActivityManager am = (ActivityManager) getSystemService(Activity.ACTIVITY_SERVICE);
+        am.killBackgroundProcesses("com.example.updatelauncher");
+
+        setSeekbarLumin();
+        startService(new Intent(MainActivity.this, CheckRunningApp.class));
+        alertDemarrerCheckRunning();
     }
 
     public void startProcess(){
-        Log.e("STARTPROCESS","StartProcess() démarré");
+        //Log.e("STARTPROCESS","StartProcess() démarré");
         setIpTitle();
 
         initialiserLocalisation();
 
-        urlSrv = BaseUrlSrv + "/StoreRequest.php?gun=" + deviceId;
-        Log.e("URL", urlSrv);
+        urlSrv = BaseUrlSrv + "/StoreRequest.php?gun=" + deviceId+"&numGun="+deviceTitle;
+        Log.e("URL Store Request", urlSrv);
 
-        ConnectionToServer conn = new ConnectionToServer(this);//this);
+        ConnectionToServer conn = new ConnectionToServer(this);
         conn.execute(urlSrv);
 
 
-        //Instanciation de différents composants visuels
+        //Instanciation des différents composants visuels
         instanciationXMLComponents();
 
         //Parametre la barre de luminosité
@@ -140,8 +160,6 @@ public class MainActivity extends AppCompatActivity {
 
         //Paramètre l'action des différents boutons présent sur l'ATH
         setOnClick();
-
-
 
         //Verrouille l'orientation du Launcher seulement
         setOrientation();
@@ -151,8 +169,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Intent getMessageIntent= new Intent(MainActivity.this,GetMessageService.class);
-        getMessageIntent.putExtra("BaseUrlSrv",BaseUrlSrv);
-        getMessageIntent.putExtra("deviceId",deviceId);
+
+        urlSrv=BaseUrlSrv+"/ReadMessages.php?DeviceID="+deviceId;
+        getMessageIntent.putExtra("urlSrv",urlSrv);
+        Log.e("Test Url Messages",urlSrv);
         startService(getMessageIntent);
 
     }
@@ -295,7 +315,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             mModeLuminosite = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE);
         } catch (Exception e) {
-            Log.d("tag", e.toString());
+            //Log.e("tag Lumin", e.toString());
         }
 
         if (mModeLuminosite == 0) {
@@ -467,6 +487,14 @@ public class MainActivity extends AppCompatActivity {
                                 conn.execute(urlSrv);
 
 
+                                if(checkRunningService(CheckRunningApp.class))
+                                {
+                                    stopService(checkRunningApp);
+                                }
+
+
+
+
                             } else {
                                 Toast.makeText(MainActivity.this, "Mauvais Mot De Passe", Toast.LENGTH_SHORT).show();
                                 mBadPassword ++;
@@ -541,6 +569,8 @@ public class MainActivity extends AppCompatActivity {
 
         //Actualise l'affichage du Launcher
         mButtonMAJ.setOnClickListener(view -> {
+            ActivityManager am = (ActivityManager) getSystemService(Activity.ACTIVITY_SERVICE);
+            am.killBackgroundProcesses("com.example.updatelauncher");
             testInstall("com.example.updatelauncher");
         });
 
@@ -548,6 +578,10 @@ public class MainActivity extends AppCompatActivity {
 
     //vérifie si l'application est installée ou non
     public void testInstall(String packageName){
+
+        ActivityManager am = (ActivityManager) getSystemService(Activity.ACTIVITY_SERVICE);
+        am.killBackgroundProcesses("com.example.updatelauncher");
+
         urlSrv = BaseUrlSrv+"/checkVersionLucas.php?package=";
         PackageInfo pkgInfo = null;
         boolean appInstallee=false;
@@ -563,9 +597,9 @@ public class MainActivity extends AppCompatActivity {
             String ver = pkgInfo.versionName;
 
             //Requete vers le serveur avec la version et le nom du package
-            urlSrv += packageName + "&version="+ver;
+            urlSrv += packageName + "&version="+ver+"&numGun="+deviceTitle;
             //urlSrv += packageName + "&version=2.2.2";
-            Log.e("TEST URL", urlSrv);
+            //Log.e("TEST URL", urlSrv);
 
             CheckVersionOnServer checkVersionOnServer = new CheckVersionOnServer(this);
             checkVersionOnServer.execute(urlSrv);
@@ -579,10 +613,12 @@ public class MainActivity extends AppCompatActivity {
     public void checkVersion(String result){
         String[] resultRequest = result.split("[;]");
 
+        //Log.e("ResultRequest[2]",resultRequest[2]);
         Intent launchIntent = getPackageManager().getLaunchIntentForPackage(resultRequest[2]); //resultRequest[2] = nom du package
 
         if (resultRequest[0].equals("OK")) {
             Log.e("VERSION","Bonne version, c'est bon");
+            launchIntent.putExtra("id_gun",deviceId);
             startActivity(launchIntent);
 
         }else if(resultRequest[0].equals("Pas_OK")){
@@ -616,7 +652,7 @@ public class MainActivity extends AppCompatActivity {
 
     //Demande au User l'accés aux permissions voulues
     public void askPermissions() {
-        Log.e("Perms GENERAL", "Je check toutes les perms");
+        //Log.e("Perms GENERAL", "Je check toutes les perms");
         String[] mPermissionsTab = {Manifest.permission.ACCESS_FINE_LOCATION, //liste des permissions à demander
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.READ_PHONE_STATE,
@@ -649,6 +685,9 @@ public class MainActivity extends AppCompatActivity {
                 askPermissionsOverlay();
             }
         }
+        /*if(requestCode==1 && resultCode==RESULT_CANCELED){
+            askPermissionsNotifications();
+        }*/
         if(requestCode==1 && resultCode==RESULT_CANCELED){
             startProcess();
         }
@@ -657,7 +696,7 @@ public class MainActivity extends AppCompatActivity {
 
     //Permission d'accés aux paramétres système
     public void askPermissionsWriteSettings() {
-        Log.e("Perms GENERAL", "Je Check Parametres");
+        //Log.e("Perms GENERAL", "Je Check Parametres");
         if (Build.VERSION.SDK_INT >= 23) {
 
             if (!Settings.System.canWrite(getApplicationContext())) {
@@ -671,7 +710,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void askPermissionsOverlay(){
-        Log.e("Perms GENERAL", "Je check overlay");
+        //Log.e("Perms GENERAL", "Je check overlay");
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
@@ -684,6 +723,17 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    /*public void askPermissionsNotifications(){
+        NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                && !notificationManager.isNotificationPolicyAccessGranted()) {
+
+            Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+
+            startActivityForResult(intent,2);
+        }
+    }*/
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -745,7 +795,7 @@ public class MainActivity extends AppCompatActivity {
             packagesNames[i] = s;
             i++;
         }
-        startService(new Intent(MainActivity.this,CheckRunningApp.class));
+        startService(checkRunningApp);
         initializeButtons();
 
     }
@@ -754,8 +804,8 @@ public class MainActivity extends AppCompatActivity {
     public void GetApkNameFromServer(String packageName) {
 
         String urlForApk;
-        urlForApk = BaseUrlSrv + "/APKRequest.php?package=" + packageName;
-        Log.e("URL for APK's", urlForApk);
+        urlForApk = BaseUrlSrv + "/APKRequest.php?package=" + packageName+"&id="+deviceId+"&numGun="+deviceTitle;
+        //Log.e("URL for APK's", urlForApk);
 
         GestionDownload conn = new GestionDownload(this);
         conn.execute(urlForApk);
@@ -865,13 +915,13 @@ public class MainActivity extends AppCompatActivity {
                         public void run() {
                             String dir = Environment.getExternalStorageDirectory() + "/android/data/" + getPackageName() + "/files/download/";
 
-                            Log.e("dir", "data uri: " + dir + apkName);
+                            //Log.e("dir", "data uri: " + dir + apkName);
                             File file = new File(dir, apkName);
 
                             Intent promt = new Intent(Intent.ACTION_VIEW);
                             if (Build.VERSION.SDK_INT >= 24) {
 
-                                Uri uriFile = FileProvider.getUriForFile(getApplicationContext(), getPackageName() + ".provider", file);
+                                Uri uriFile = FileProvider.getUriForFile(getApplicationContext(), getPackageName()+".provider", file);
 
 
                                 promt.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
@@ -886,7 +936,7 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             if (file.exists()) {
-                                Log.e("dir", "data trouvé ");
+                                //Log.e("dir", "data trouvé ");
                                 startActivity(promt);
                             } else {
                                 Toast.makeText(MainActivity.this, "Fichier d'installation non trouvé", Toast.LENGTH_SHORT).show();
@@ -905,7 +955,7 @@ public class MainActivity extends AppCompatActivity {
 
                             // closeapp();
                         }
-                    }, 600);
+                    }, 500);
                 }
 
             }
@@ -921,24 +971,54 @@ public class MainActivity extends AppCompatActivity {
         progressBarDialog2.setTitle("Téléchargement terminé");
         progressBarDialog2.setMessage("Appuyez sur Fermer");
         progressBarDialog2.setCancelable(false);
-        progressBarDialog2.setButton(DialogInterface.BUTTON_NEGATIVE, "Fermer", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Check();
-                initializeButtons();
-            }
+        progressBarDialog2.setButton(DialogInterface.BUTTON_NEGATIVE, "Fermer", (dialog, which) -> {
+            // Check();
+            progressBarDialog2.dismiss();
+            initializeButtons();
         });
         progressBarDialog2.show();
 
     }
 
-   private void initialiserLocalisation() {
-        Log.e("initialiserLocalisation","Entré");
+    private void initialiserLocalisation() {
+        //Log.e("initialiserLocalisation","Entré");
 
         Intent SendLocation = new Intent(MainActivity.this,PositionServiceJason.class);
         SendLocation.putExtra("deviceId",deviceId);
+        SendLocation.putExtra("deviceTitle",deviceTitle);
         SendLocation.putExtra("BaseUrlSrv",BaseUrlSrv);
         startService(SendLocation);
+    }
+
+    public void alertDemarrerCheckRunning(){
+
+        if(!(checkRunningService(CheckRunningApp.class))){
+
+            AlertDialog diagCheckRun = new AlertDialog.Builder(this)
+                    .setTitle("Lancer le service ?")
+                    .setPositiveButton("OUI", (dialogInterface, i) -> {
+                        startService(checkRunningApp);
+                    })
+                    .setNegativeButton("NON",(dialogInterface, i) -> {
+                        stopService(checkRunningApp);
+                    })
+                    .setCancelable(false)
+                    .create();
+            diagCheckRun.show();
+
+        }
+
+    }
+
+    public boolean checkRunningService(Class<?> serviceClass){
+
+        ActivityManager AManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : AManager.getRunningServices(Integer.MAX_VALUE)){
+            if(serviceClass.getName().equals(service.service.getClassName())){
+                return true;
+            }
+        }
+        return false;
     }
 
 }

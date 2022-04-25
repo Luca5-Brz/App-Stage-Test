@@ -30,6 +30,7 @@ public class PositionServiceJason  extends Service {
     public String urlSrv;
 
     public String deviceId;
+    String deviceTitle;
 
     LocationListener[] mLocationListeners = new LocationListener[] {
             new LocationListener(LocationManager.GPS_PROVIDER),
@@ -41,14 +42,14 @@ public class PositionServiceJason  extends Service {
 
         public LocationListener(String provider)
         {
-            Log.e(TAG, "LocationListener " + provider);
+            //Log.e(TAG, "LocationListener " + provider);
             mLastLocation = new Location(provider);
         }
 
 
         public  void  sendLog(double latitude, double longitude)  throws  UnsupportedEncodingException
         {
-            urlSrv = BaseUrlSrv + "/LogPositionGPSLucas.php?gun=" + deviceId+"&coordLg="+longitude+"&coordLt="+latitude;
+            urlSrv = BaseUrlSrv + "/LogPositionGPSLucas.php?gun=" + deviceId+"&numGun="+deviceTitle+"&coordLg="+longitude+"&coordLt="+latitude;
 
             EnvoieGPSToServer conn = new EnvoieGPSToServer();
             conn.execute(urlSrv);
@@ -59,7 +60,7 @@ public class PositionServiceJason  extends Service {
         public void onLocationChanged(Location location)
         {
 
-            Log.e(TAG, "onLocationChanged: " + location);
+            //Log.e(TAG, "onLocationChanged: " + location);
             mLastLocation.set(location);
 
 
@@ -77,13 +78,13 @@ public class PositionServiceJason  extends Service {
         @Override
         public void onProviderDisabled(String provider)
         {
-            Log.e(TAG, "onProviderDisabled: " + provider);
+            //Log.e(TAG, "onProviderDisabled: " + provider);
         }
 
         @Override
         public void onProviderEnabled(String provider)
         {
-            Log.e(TAG, "onProviderEnabled: " + provider);
+            //Log.e(TAG, "onProviderEnabled: " + provider);
         }
 
         @Override
@@ -91,7 +92,7 @@ public class PositionServiceJason  extends Service {
         {
             count=count+1;
             Date currentTime = Calendar.getInstance().getTime();
-            Log.e(TAG, "onStatusChanged: "+currentTime+" ; "+ provider);
+            //Log.e(TAG, "onStatusChanged: "+currentTime+" ; "+ provider);
             if (count==30)
             {
                 onStarting();
@@ -103,7 +104,7 @@ public class PositionServiceJason  extends Service {
     @Override
     public void onCreate()
     {
-        Log.e(TAG, "onCreate");
+        //Log.e(TAG, "onCreate");
         turnGPSOn();
         onStarting();
     }
@@ -117,18 +118,19 @@ public class PositionServiceJason  extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
-        Log.e(TAG, "onStartCommand");
+        //Log.e(TAG, "onStartCommand");
         super.onStartCommand(intent, flags, startId);
 
         Bundle extras = intent.getExtras();
         deviceId = extras.get("deviceId").toString();
+        deviceTitle = extras.get("deviceTitle").toString();
         BaseUrlSrv = extras.get("BaseUrlSrv").toString();
 
         return START_STICKY;
     }
 
     public void onStarting () {
-        Log.e(TAG, "onStarting");
+        //Log.e(TAG, "onStarting");
         initializeLocationManager();
         try {
             mLocationManager.requestLocationUpdates(
@@ -143,7 +145,7 @@ public class PositionServiceJason  extends Service {
     @Override
     public void onDestroy()
     {
-        Log.e(TAG, "onDestroy");
+        //Log.e(TAG, "onDestroy");
         super.onDestroy();
         if (mLocationManager != null) {
             for (int i = 0; i < mLocationListeners.length; i++) {
@@ -157,7 +159,7 @@ public class PositionServiceJason  extends Service {
     }
 
     private void initializeLocationManager() {
-        Log.e(TAG, "initializeLocationManager");
+        //Log.e(TAG, "initializeLocationManager");
         if (mLocationManager == null) {
             mLocationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         }
