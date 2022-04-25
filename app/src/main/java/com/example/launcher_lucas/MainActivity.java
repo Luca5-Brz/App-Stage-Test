@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
         am.killBackgroundProcesses("com.example.updatelauncher");
 
         setSeekbarLumin();
-        startService(new Intent(MainActivity.this, CheckRunningApp.class));
+        startService(checkRunningApp);
         alertDemarrerCheckRunning();
     }
 
