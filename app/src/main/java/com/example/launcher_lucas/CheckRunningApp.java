@@ -63,8 +63,6 @@ public class CheckRunningApp extends Service {
             if ("com.computerland.cdh.mobile".equals(output2[1])) {}
             else if ("com.example.launcher_lucas".equals(output2[1])) { }
             else if ("com.example.updatelauncher".equals(output2[1])) { }
-            //else if ("com.android.settings".equals(output2[1])) { }
-            else if ("com.teamviewer.quicksupport.market".equals(output2[1])){}
             else if ("com.android.packageinstaller".equals(output2[1])){}
             else if ("com.google.android.location".equals(output2[1])){}
             else if (isallowed) {}
@@ -75,7 +73,7 @@ public class CheckRunningApp extends Service {
                 startActivity(launchIntent);
             }
 
-        }, 0, 1, TimeUnit.SECONDS);
+        }, 0, 1000, TimeUnit.MILLISECONDS);
         //Log.e("TESTTTTT","Juste apres le schedule machin");
     }
 

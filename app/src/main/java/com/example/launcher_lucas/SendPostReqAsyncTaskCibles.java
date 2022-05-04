@@ -12,19 +12,19 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class SendPostReqAsyncTask extends AsyncTask<String, Void, String> {
+public class SendPostReqAsyncTaskCibles extends AsyncTask<String, Void, String> {
 
     @SuppressLint("StaticFieldLeak")
-    GetMessageService actiTest;
+    GetMessageCiblesService actiTest;
 
-    public SendPostReqAsyncTask(GetMessageService actiTest) {
+    public SendPostReqAsyncTaskCibles(GetMessageCiblesService actiTest) {
         this.actiTest = actiTest;
     }
 
     @Override
     protected String doInBackground(String... params)
     {
-        Log.e("Url Message",""+params[0]);
+        Log.e("Url Message Ciblés",""+params[0]);
         BufferedReader buffReader;
         HttpURLConnection connexion;
 
@@ -61,8 +61,9 @@ public class SendPostReqAsyncTask extends AsyncTask<String, Void, String> {
 
         if (result !=null)
         {
-            Log.e("Return Message",result);
+            Log.e("Return Message Ciblés",result);
             actiTest.sendLog(result);
+
         }
     }
 }

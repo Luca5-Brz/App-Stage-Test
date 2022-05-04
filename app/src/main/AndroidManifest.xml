@@ -38,6 +38,7 @@
         <service android:name="com.example.launcher_lucas.CheckRunningApp"/>
         <service android:name="com.example.launcher_lucas.PositionServiceJason"/>
         <service android:name="com.example.launcher_lucas.GetMessageService"/>
+        <service android:name="com.example.launcher_lucas.GetMessageCiblesService"/>
 
 
         <activity

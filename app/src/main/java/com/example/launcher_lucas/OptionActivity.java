@@ -157,7 +157,7 @@ public class OptionActivity extends AppCompatActivity {
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         try {
-            mSeekbarVolume.setProgress(audioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION));
+            mSeekbarVolume.setProgress((audioManager.getStreamVolume(AudioManager.STREAM_MUSIC))/2);
         } catch (Exception e) {
             e.printStackTrace();
         }

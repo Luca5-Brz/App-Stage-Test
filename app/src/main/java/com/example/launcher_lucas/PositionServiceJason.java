@@ -22,7 +22,7 @@ public class PositionServiceJason  extends Service {
     // LocationManager locationManager;
     private static final String TAG = "BOOMBOOMTESTGPS";
     private LocationManager mLocationManager = null;
-    private static final int LOCATION_INTERVAL = 1000 * 60 * 30; // 1 hour
+    private static final int LOCATION_INTERVAL = 1000 * 60 * 30; // 30min
     private static final float LOCATION_DISTANCE = 160935f; // 100 miles
     int count=0;
 

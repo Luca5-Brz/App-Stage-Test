@@ -139,13 +139,17 @@ public class MainActivity extends AppCompatActivity {
         alertDemarrerCheckRunning();
     }
 
-    public void startProcess(){
+    public void startProcess() {
         //Log.e("STARTPROCESS","StartProcess() démarré");
         setIpTitle();
 
         initialiserLocalisation();
 
-        urlSrv = BaseUrlSrv + "/StoreRequest.php?gun=" + deviceId+"&numGun="+deviceTitle;
+        try {
+            urlSrv = BaseUrlSrv + "/StoreRequest.php?gun=" + deviceId+"&numGun="+deviceTitle+"&ip="+ipAddr+"&launcherVersion="+ getPackageManager().getPackageInfo(getPackageName(),0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
         Log.e("URL Store Request", urlSrv);
 
         ConnectionToServer conn = new ConnectionToServer(this);
@@ -169,18 +173,23 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Intent getMessageIntent= new Intent(MainActivity.this,GetMessageService.class);
-
         urlSrv=BaseUrlSrv+"/ReadMessages.php?DeviceID="+deviceId;
         getMessageIntent.putExtra("urlSrv",urlSrv);
-        Log.e("Test Url Messages",urlSrv);
+        //Log.e("Test Url Messages",urlSrv);
         startService(getMessageIntent);
+
+        Intent getMessageCibleIntent= new Intent(MainActivity.this,GetMessageCiblesService.class);
+        urlSrv=BaseUrlSrv+"/ReadMessagesCibles.php?DeviceID="+deviceId;
+        getMessageCibleIntent.putExtra("urlSrv",urlSrv);
+        //Log.e("Test Url Messages",urlSrv);
+        startService(getMessageCibleIntent);
 
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
 
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+        if (android.os.Build.VERSION.SDK_INT >= 22){
 
             if (!hasFocus) {
 
@@ -189,6 +198,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Method that handles loss of window focus
                 new BlockStatusBar(this,false).collapseNow();
+
             }
         }
     }
@@ -241,17 +251,19 @@ public class MainActivity extends AppCompatActivity {
 
                 getSharedPreferences("Adresse IP", MODE_PRIVATE)
                         .edit()
-                        .putString("Addresse Ip", ipAddr)
+                        .putString("Addresse IP", ipAddr)
                         .apply();
 
             } else { //S'il existe déjà une addresse ip pour ce device, on la reprend et l'affiche
+                Log.e("IP", ipAddr);
                 String[] ipAddrSplit = ipAddr.split("\\.");
                 deviceTitle = ipAddrSplit[3];
             }
             setTitle(deviceTitle);
 
             //On récupére l'addresse MAC pour en faire un ID
-            deviceId = getMacAddr();
+            //deviceId = getMacAddr();
+            deviceId= Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
             Log.e("ID", deviceId);
         }
     }
@@ -578,6 +590,7 @@ public class MainActivity extends AppCompatActivity {
 
     //vérifie si l'application est installée ou non
     public void testInstall(String packageName){
+        Toast.makeText(this, "Veuillez patienter, nous vérifions les mise à jour.", Toast.LENGTH_SHORT).show();
 
         ActivityManager am = (ActivityManager) getSystemService(Activity.ACTIVITY_SERVICE);
         am.killBackgroundProcesses("com.example.updatelauncher");
@@ -597,9 +610,8 @@ public class MainActivity extends AppCompatActivity {
             String ver = pkgInfo.versionName;
 
             //Requete vers le serveur avec la version et le nom du package
-            urlSrv += packageName + "&version="+ver+"&numGun="+deviceTitle;
-            //urlSrv += packageName + "&version=2.2.2";
-            //Log.e("TEST URL", urlSrv);
+            urlSrv += packageName + "&version="+ver+"&numGun="+deviceTitle+"&IdGun="+deviceId;
+            Log.e("TEST URL Version", urlSrv);
 
             CheckVersionOnServer checkVersionOnServer = new CheckVersionOnServer(this);
             checkVersionOnServer.execute(urlSrv);

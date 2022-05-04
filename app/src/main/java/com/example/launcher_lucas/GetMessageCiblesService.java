@@ -15,7 +15,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class GetMessageService extends Service {
+public class GetMessageCiblesService extends Service {
 
     MediaPlayer mp;
 
@@ -45,7 +45,7 @@ public class GetMessageService extends Service {
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(() -> {
 
-            SendPostReqAsyncTask sendPostReqAsyncTask = new SendPostReqAsyncTask(this);
+            SendPostReqAsyncTaskCibles sendPostReqAsyncTask = new SendPostReqAsyncTaskCibles(this);
             sendPostReqAsyncTask.execute(urlSrv);
 
             //Log.e("Url Message SendLog",urlSrv);
@@ -78,7 +78,7 @@ public class GetMessageService extends Service {
                 music.show();
                 mp.start();
 
-            }else if(!(str.equals("Plus de messages"))){
+            }else if(!(str.equals(""))){
                 AlertDialog alertMsg = new AlertDialog.Builder(getApplicationContext())
                         .setTitle("Attention !!")
                         .setMessage(str)
@@ -108,7 +108,7 @@ public class GetMessageService extends Service {
                 music.show();
                 mp.start();
 
-            }else if(!(str.equals("Plus de messages"))){
+            }else if(!(str.equals(""))){
                 AlertDialog alertMsg = new AlertDialog.Builder(getApplicationContext())
                         .setTitle("Attention !!")
                         .setMessage(str)
